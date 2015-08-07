@@ -26,7 +26,7 @@
     // Do any additional setup after loading the view, typically from a nib.
     self.view.backgroundColor = [UIColor colorWithWhite:0.804 alpha:1.000];
     
-//    [self.view addSubview:self.button];
+    [self.view addSubview:self.button];
     
     self.titles = @[@"大杂烩",@"鞋服配饰",@"母婴",@"奢侈品",@"家居日用",@"数码电子",@"影音家电",@"交通工具",@"萌宠"];
     [self.view addSubview:self.scrollMenuView];
@@ -67,8 +67,8 @@
 - (void)viewWillLayoutSubviews
 {
     [super viewWillLayoutSubviews];
-//    
-//    self.button.frame = CGRectMake(100, 300, 50, 30);
+    
+    self.button.frame = CGRectMake(100, 300, 50, 30);
     
     self.scrollMenuView.frame = CGRectMake(0, 64, self.view.frame.size.width, 36.0f);
 }
@@ -77,7 +77,11 @@
 #pragma mark - event
 - (void)click
 {
-    
+    if (self.scrollMenuView.currentIndex==self.titles.count-1) {
+        [self.scrollMenuView setCurrentIndex:0 animated:YES];
+    }else{
+        [self.scrollMenuView setCurrentIndex:self.scrollMenuView.currentIndex+1 animated:YES];
+    }
 }
 
 #pragma mark - delegate

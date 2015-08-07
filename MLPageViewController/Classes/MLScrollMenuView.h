@@ -20,7 +20,7 @@
 @interface MLScrollMenuView : UIView
 
 @property (nonatomic, weak) id<MLScrollMenuViewDelegate> delegate;
-@property (nonatomic, assign) NSInteger currentIndex;
+@property (nonatomic, assign, readonly) NSInteger currentIndex;
 
 //可以自定义的一些样式
 @property (nonatomic, strong) UIFont *titleFont;
@@ -29,5 +29,6 @@
 
 
 - (void)reloadData;
+- (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated;
 
 @end

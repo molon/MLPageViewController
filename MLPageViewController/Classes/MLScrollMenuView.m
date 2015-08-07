@@ -20,7 +20,9 @@
 {
     [super reloadData];
     if (self.didReloadDataBlock) {
-        self.didReloadDataBlock();
+        dispatch_async(dispatch_get_main_queue(), ^{
+           self.didReloadDataBlock();
+        });
     }
 }
 
@@ -30,6 +32,7 @@
 
 @property (nonatomic, strong) MLScrollMenuCollectionView *collectionView;
 @property (nonatomic, strong) UIView *indicatorView;
+@property (nonatomic, assign) NSInteger currentIndex;
 
 @end
 
@@ -133,6 +136,7 @@
 
 - (void)setCurrentIndex:(NSInteger)currentIndex
 {
+    NSAssert(currentIndex>=0&&currentIndex<[self.delegate titleCount], @"currentIndex设置越界");
     _currentIndex = currentIndex;
 
     self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
@@ -169,8 +173,8 @@
     NSAssert(self.delegate, @"MLScrollMenuViewDelegate is required");
     
     MLScrollMenuCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([MLScrollMenuCollectionViewCell class]) forIndexPath:indexPath];
-    
-    cell.backgroundColor = indexPath.row%2?[UIColor yellowColor]:[UIColor greenColor];
+#warning 测试
+//    cell.backgroundColor = indexPath.row%2?[UIColor yellowColor]:[UIColor greenColor];
     NSString *title = [self.delegate titleForIndex:indexPath.row];
     
     cell.titleLabel.font = self.titleFont;
@@ -222,10 +226,8 @@
 {
     //找到对应cell的位置
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
-    CGRect frame  = attributes.frame;
-    frame.size.width-=kMLScrollMenuViewCollectionViewCellXPadding*2;
-    frame.origin.x+=kMLScrollMenuViewCollectionViewCellXPadding;
-    return frame;
+    
+    return CGRectMake(attributes.frame.origin.x+kMLScrollMenuViewCollectionViewCellXPadding, attributes.frame.size.height, attributes.frame.size.width-kMLScrollMenuViewCollectionViewCellXPadding*2, kMLScrollMenuViewIndicatorViewHeight);
 }
 
 #pragma mark - outcall
