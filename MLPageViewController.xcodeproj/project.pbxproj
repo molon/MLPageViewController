@@ -14,6 +14,8 @@
 		369BE72E1B73690B00FDAE27 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 369BE72D1B73690B00FDAE27 /* Images.xcassets */; };
 		369BE7311B73690B00FDAE27 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 369BE72F1B73690B00FDAE27 /* LaunchScreen.xib */; };
 		369BE73D1B73690B00FDAE27 /* MLPageViewControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 369BE73C1B73690B00FDAE27 /* MLPageViewControllerTests.m */; };
+		36D17E561B746D5900A1ACC2 /* MLScrollMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E551B746D5900A1ACC2 /* MLScrollMenuView.m */; };
+		36D17E591B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E581B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,10 @@
 		369BE7361B73690B00FDAE27 /* MLPageViewControllerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MLPageViewControllerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		369BE73B1B73690B00FDAE27 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		369BE73C1B73690B00FDAE27 /* MLPageViewControllerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MLPageViewControllerTests.m; sourceTree = "<group>"; };
+		36D17E541B746D5900A1ACC2 /* MLScrollMenuView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLScrollMenuView.h; sourceTree = "<group>"; };
+		36D17E551B746D5900A1ACC2 /* MLScrollMenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLScrollMenuView.m; sourceTree = "<group>"; };
+		36D17E571B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLScrollMenuCollectionViewCell.h; sourceTree = "<group>"; };
+		36D17E581B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLScrollMenuCollectionViewCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +87,7 @@
 		369BE71F1B73690B00FDAE27 /* MLPageViewController */ = {
 			isa = PBXGroup;
 			children = (
+				36D17E4A1B744E9900A1ACC2 /* Classes */,
 				369BE7241B73690B00FDAE27 /* AppDelegate.h */,
 				369BE7251B73690B00FDAE27 /* AppDelegate.m */,
 				369BE7271B73690B00FDAE27 /* ViewController.h */,
@@ -117,6 +124,17 @@
 				369BE73B1B73690B00FDAE27 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		36D17E4A1B744E9900A1ACC2 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				36D17E541B746D5900A1ACC2 /* MLScrollMenuView.h */,
+				36D17E551B746D5900A1ACC2 /* MLScrollMenuView.m */,
+				36D17E571B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.h */,
+				36D17E581B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m */,
+			);
+			path = Classes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -221,6 +239,8 @@
 			files = (
 				369BE7291B73690B00FDAE27 /* ViewController.m in Sources */,
 				369BE7261B73690B00FDAE27 /* AppDelegate.m in Sources */,
+				36D17E561B746D5900A1ACC2 /* MLScrollMenuView.m in Sources */,
+				36D17E591B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m in Sources */,
 				369BE7231B73690B00FDAE27 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -347,6 +367,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				INFOPLIST_FILE = MLPageViewController/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -357,6 +378,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				INFOPLIST_FILE = MLPageViewController/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -416,6 +438,7 @@
 				369BE7421B73690B00FDAE27 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		369BE7431B73690B00FDAE27 /* Build configuration list for PBXNativeTarget "MLPageViewControllerTests" */ = {
 			isa = XCConfigurationList;
@@ -424,6 +447,7 @@
 				369BE7451B73690B00FDAE27 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
