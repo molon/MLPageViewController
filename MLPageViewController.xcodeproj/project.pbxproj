@@ -10,12 +10,14 @@
 		369BE7231B73690B00FDAE27 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 369BE7221B73690B00FDAE27 /* main.m */; };
 		369BE7261B73690B00FDAE27 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 369BE7251B73690B00FDAE27 /* AppDelegate.m */; };
 		369BE7291B73690B00FDAE27 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 369BE7281B73690B00FDAE27 /* ViewController.m */; };
-		369BE72C1B73690B00FDAE27 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 369BE72A1B73690B00FDAE27 /* Main.storyboard */; };
 		369BE72E1B73690B00FDAE27 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 369BE72D1B73690B00FDAE27 /* Images.xcassets */; };
 		369BE7311B73690B00FDAE27 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 369BE72F1B73690B00FDAE27 /* LaunchScreen.xib */; };
 		369BE73D1B73690B00FDAE27 /* MLPageViewControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 369BE73C1B73690B00FDAE27 /* MLPageViewControllerTests.m */; };
 		36D17E561B746D5900A1ACC2 /* MLScrollMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E551B746D5900A1ACC2 /* MLScrollMenuView.m */; };
 		36D17E591B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E581B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m */; };
+		36D17E5C1B74A61A00A1ACC2 /* MLPageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E5B1B74A61A00A1ACC2 /* MLPageViewController.m */; };
+		36D17E5F1B74A87E00A1ACC2 /* UIViewController+MLKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E5E1B74A87E00A1ACC2 /* UIViewController+MLKit.m */; };
+		36D17E621B74A96800A1ACC2 /* TempViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E611B74A96800A1ACC2 /* TempViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,7 +38,6 @@
 		369BE7251B73690B00FDAE27 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		369BE7271B73690B00FDAE27 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		369BE7281B73690B00FDAE27 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		369BE72B1B73690B00FDAE27 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		369BE72D1B73690B00FDAE27 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		369BE7301B73690B00FDAE27 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		369BE7361B73690B00FDAE27 /* MLPageViewControllerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MLPageViewControllerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -46,6 +47,13 @@
 		36D17E551B746D5900A1ACC2 /* MLScrollMenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLScrollMenuView.m; sourceTree = "<group>"; };
 		36D17E571B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLScrollMenuCollectionViewCell.h; sourceTree = "<group>"; };
 		36D17E581B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLScrollMenuCollectionViewCell.m; sourceTree = "<group>"; };
+		36D17E5A1B74A61A00A1ACC2 /* MLPageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLPageViewController.h; sourceTree = "<group>"; };
+		36D17E5B1B74A61A00A1ACC2 /* MLPageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLPageViewController.m; sourceTree = "<group>"; };
+		36D17E5D1B74A87E00A1ACC2 /* UIViewController+MLKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+MLKit.h"; sourceTree = "<group>"; };
+		36D17E5E1B74A87E00A1ACC2 /* UIViewController+MLKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+MLKit.m"; sourceTree = "<group>"; };
+		36D17E601B74A96800A1ACC2 /* TempViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TempViewController.h; sourceTree = "<group>"; };
+		36D17E611B74A96800A1ACC2 /* TempViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TempViewController.m; sourceTree = "<group>"; };
+		36D17E631B74B4D000A1ACC2 /* MLKitDebug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MLKitDebug.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,7 +100,8 @@
 				369BE7251B73690B00FDAE27 /* AppDelegate.m */,
 				369BE7271B73690B00FDAE27 /* ViewController.h */,
 				369BE7281B73690B00FDAE27 /* ViewController.m */,
-				369BE72A1B73690B00FDAE27 /* Main.storyboard */,
+				36D17E601B74A96800A1ACC2 /* TempViewController.h */,
+				36D17E611B74A96800A1ACC2 /* TempViewController.m */,
 				369BE72D1B73690B00FDAE27 /* Images.xcassets */,
 				369BE72F1B73690B00FDAE27 /* LaunchScreen.xib */,
 				369BE7201B73690B00FDAE27 /* Supporting Files */,
@@ -129,10 +138,15 @@
 		36D17E4A1B744E9900A1ACC2 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				36D17E631B74B4D000A1ACC2 /* MLKitDebug.h */,
+				36D17E5D1B74A87E00A1ACC2 /* UIViewController+MLKit.h */,
+				36D17E5E1B74A87E00A1ACC2 /* UIViewController+MLKit.m */,
 				36D17E541B746D5900A1ACC2 /* MLScrollMenuView.h */,
 				36D17E551B746D5900A1ACC2 /* MLScrollMenuView.m */,
 				36D17E571B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.h */,
 				36D17E581B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m */,
+				36D17E5A1B74A61A00A1ACC2 /* MLPageViewController.h */,
+				36D17E5B1B74A61A00A1ACC2 /* MLPageViewController.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -217,7 +231,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				369BE72C1B73690B00FDAE27 /* Main.storyboard in Resources */,
 				369BE7311B73690B00FDAE27 /* LaunchScreen.xib in Resources */,
 				369BE72E1B73690B00FDAE27 /* Images.xcassets in Resources */,
 			);
@@ -239,7 +252,10 @@
 			files = (
 				369BE7291B73690B00FDAE27 /* ViewController.m in Sources */,
 				369BE7261B73690B00FDAE27 /* AppDelegate.m in Sources */,
+				36D17E5C1B74A61A00A1ACC2 /* MLPageViewController.m in Sources */,
 				36D17E561B746D5900A1ACC2 /* MLScrollMenuView.m in Sources */,
+				36D17E621B74A96800A1ACC2 /* TempViewController.m in Sources */,
+				36D17E5F1B74A87E00A1ACC2 /* UIViewController+MLKit.m in Sources */,
 				36D17E591B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m in Sources */,
 				369BE7231B73690B00FDAE27 /* main.m in Sources */,
 			);
@@ -264,14 +280,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		369BE72A1B73690B00FDAE27 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				369BE72B1B73690B00FDAE27 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		369BE72F1B73690B00FDAE27 /* LaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (

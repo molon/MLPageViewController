@@ -8,10 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+@class MLScrollMenuView;
 @protocol MLScrollMenuViewDelegate <NSObject>
 
 - (NSString*)titleForIndex:(NSInteger)index;
 - (NSInteger)titleCount;
+
+- (void)didChangedCurrentIndex:(NSInteger)currentIndex scrollMenuView:(MLScrollMenuView*)scrollMenuView;
 
 @end
 

@@ -155,6 +155,10 @@
     [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:YES];
     
     self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
+    
+    if (self.delegate&&[self.delegate respondsToSelector:@selector(didChangedCurrentIndex:scrollMenuView:)]) {
+        [self.delegate didChangedCurrentIndex:currentIndex scrollMenuView:self];
+    }
 }
 
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated
@@ -174,6 +178,7 @@
     [super layoutSubviews];
     
     self.collectionView.frame = self.bounds;
+    [self.collectionView reloadData];
 }
 
 #pragma mark - collectionView delegate

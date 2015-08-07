@@ -7,7 +7,8 @@
 //
 
 #import "AppDelegate.h"
-
+#import "MLPageViewController.h"
+#import "TempViewController.h"
 @interface AppDelegate ()
 
 @end
@@ -17,6 +18,22 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window.backgroundColor = [UIColor whiteColor];
+    
+    NSMutableArray *array = [NSMutableArray array];
+    for (NSInteger i=0; i<2; i++) {
+        TempViewController *temp = [TempViewController new];
+        temp.title = [NSString stringWithFormat:@"%ld",i];
+        [array addObject:temp];
+    }
+    
+    
+    MLPageViewController *pageViewController = [[MLPageViewController alloc]initWithViewControllers:array];
+    self.window.rootViewController = pageViewController;
+    
+    [self.window makeKeyAndVisible];
+    
     return YES;
 }
 
