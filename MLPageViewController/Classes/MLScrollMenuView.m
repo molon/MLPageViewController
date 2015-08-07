@@ -61,6 +61,7 @@
 
 - (void)setUp
 {
+    self.exclusiveTouch = YES;
     _titleFont = [UIFont boldSystemFontOfSize:14.0f];
     _titleColor = [UIColor blackColor];
     _indicatorColor = [UIColor colorWithRed:0.996 green:0.827 blue:0.216 alpha:1.000];
@@ -71,7 +72,7 @@
         __strong __typeof(weakSelf)sSelf = weakSelf;
         
         if (collectionView.contentSize.width<collectionView.frame.size.width) {
-            self.minCellWidth = collectionView.frame.size.width/[sSelf.delegate titleCount];
+            sSelf.minCellWidth = collectionView.frame.size.width/[sSelf.delegate titleCount];
             //重新布局
             [collectionView reloadData];
             return;
@@ -150,20 +151,8 @@
     NSAssert(currentIndex>=0&&currentIndex<[self.delegate titleCount], @"currentIndex设置越界");
     
     _currentIndex = currentIndex;
-
-    //移动contentOffset
-    CGPoint contentOffset = self.collectionView.contentOffset;
     
-    //找到其前一个位置的frame，让其也显示出来，否则就是当前的cell为基准
-    if (currentIndex!=0) {
-        contentOffset.x = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:currentIndex-1 inSection:0]].frame.origin.x;
-    }else{
-        contentOffset.x = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:currentIndex inSection:0]].frame.origin.x;
-    }
-    contentOffset.x = MIN(contentOffset.x, self.collectionView.contentSize.width-self.collectionView.frame.size.width);
-    contentOffset.x = MAX(contentOffset.x, 0);
-    
-    [self.collectionView setContentOffset:contentOffset animated:YES];
+    [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:YES];
     
     self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
 }
@@ -199,8 +188,7 @@
     NSAssert(self.delegate, @"MLScrollMenuViewDelegate is required");
     
     MLScrollMenuCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([MLScrollMenuCollectionViewCell class]) forIndexPath:indexPath];
-#warning 测试
-//    cell.backgroundColor = indexPath.row%2?[UIColor yellowColor]:[UIColor greenColor];
+    
     NSString *title = [self.delegate titleForIndex:indexPath.row];
     
     cell.titleLabel.font = self.titleFont;
@@ -221,7 +209,7 @@
     
     size.width+=kMLScrollMenuViewCollectionViewCellXPadding*2;
     
-    size.width = MAX(size.width, self.minCellWidth);
+    size.width = fmax(size.width, self.minCellWidth);
     
     return size;
 }
@@ -265,10 +253,63 @@
     return CGRectMake(attributes.frame.origin.x+(attributes.frame.size.width-size.width)/2, attributes.frame.size.height, size.width, kMLScrollMenuViewIndicatorViewHeight);
 }
 
+- (CGPoint)contentOffsetWidthIndex:(NSInteger)index
+{
+    //移动contentOffset
+    CGPoint contentOffset = self.collectionView.contentOffset;
+    
+    //找到其前一个位置的frame，让其也显示出来，否则就是当前的cell为基准
+    if (index!=0) {
+        contentOffset.x = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:index-1 inSection:0]].frame.origin.x;
+    }else{
+        contentOffset.x = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]].frame.origin.x;
+    }
+    contentOffset.x = fmin(contentOffset.x, self.collectionView.contentSize.width-self.collectionView.frame.size.width);
+    contentOffset.x = fmax(contentOffset.x, 0);
+    return contentOffset;
+}
+
 #pragma mark - outcall
 - (void)reloadData
 {
     [self.collectionView reloadData];
+}
+
+#warning 如果当前的contentOfsset和新的差距大的话会直接跳到其位置有点怪怪的
+- (void)displayForTargetIndex:(NSInteger)targetIndex targetIsNext:(BOOL)targetIsNext ratio:(double)ratio
+{
+    if (targetIndex<0||targetIndex>[self.delegate titleCount]-1) {
+        return;
+    }
+    
+    if ((targetIndex==0&&targetIsNext)||(targetIndex==[self.delegate titleCount]-1&&!targetIsNext)) {
+        return;
+    }
+    
+    NSInteger fromIndex = targetIsNext?targetIndex-1:targetIndex+1;
+    
+    //当前的contentOffset
+    CGPoint originalContentOffset = [self contentOffsetWidthIndex:fromIndex];
+    
+    //如果当前的
+    
+    //当前的indicator frame
+    CGRect originalIndicatorFrame = [self indicatorFrameWithIndex:fromIndex];
+    
+    //移动contentOffset
+    CGPoint contentOffset = [self contentOffsetWidthIndex:targetIndex];
+    
+    //取个中间位置的即可
+    contentOffset.x = originalContentOffset.x+(contentOffset.x-originalContentOffset.x)*ratio;
+    
+    
+    CGRect indicatorFrame = [self indicatorFrameWithIndex:targetIndex];
+    indicatorFrame.origin.x = originalIndicatorFrame.origin.x+(indicatorFrame.origin.x-originalIndicatorFrame.origin.x)*ratio;
+    indicatorFrame.size.width = originalIndicatorFrame.size.width+(indicatorFrame.size.width-originalIndicatorFrame.size.width)*ratio;
+    
+    self.indicatorView.frame = indicatorFrame;
+    
+    [self.collectionView setContentOffset:contentOffset animated:NO];
 }
 
 @end
