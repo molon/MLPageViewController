@@ -11,7 +11,7 @@
 
 @interface MLScrollMenuCollectionView : UICollectionView
 
-@property (nonatomic, copy) void(^didReloadDataBlock)();
+@property (nonatomic, copy) void(^didReloadDataBlock)(MLScrollMenuCollectionView *collectionView);
 
 @end
 @implementation MLScrollMenuCollectionView
@@ -21,7 +21,7 @@
     [super reloadData];
     if (self.didReloadDataBlock) {
         dispatch_async(dispatch_get_main_queue(), ^{
-           self.didReloadDataBlock();
+           self.didReloadDataBlock(self);
         });
     }
 }
@@ -33,6 +33,9 @@
 @property (nonatomic, strong) MLScrollMenuCollectionView *collectionView;
 @property (nonatomic, strong) UIView *indicatorView;
 @property (nonatomic, assign) NSInteger currentIndex;
+
+//最小的cell宽度
+@property (nonatomic, assign) CGFloat minCellWidth;
 
 @end
 
@@ -64,8 +67,16 @@
     
     [self addSubview:self.collectionView];
     __weak __typeof(self)weakSelf = self;
-    [self.collectionView setDidReloadDataBlock:^{
+    [self.collectionView setDidReloadDataBlock:^(MLScrollMenuCollectionView *collectionView) {
         __strong __typeof(weakSelf)sSelf = weakSelf;
+        
+        if (collectionView.contentSize.width<collectionView.frame.size.width) {
+            self.minCellWidth = collectionView.frame.size.width/[sSelf.delegate titleCount];
+            //重新布局
+            [collectionView reloadData];
+            return;
+        }
+        
         //矫正indicator的位置，可能有变化
         [sSelf setCurrentIndex:sSelf.currentIndex animated:NO];
     }];
@@ -143,13 +154,11 @@
     //移动contentOffset
     CGPoint contentOffset = self.collectionView.contentOffset;
     
-    //找到新index位置
-    UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:currentIndex inSection:0]];
-    contentOffset.x = attributes.frame.origin.x;
-    //找到其前一个位置的frame
+    //找到其前一个位置的frame，让其也显示出来，否则就是当前的cell为基准
     if (currentIndex!=0) {
-        UICollectionViewLayoutAttributes *attributesBefore = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:currentIndex-1 inSection:0]];
-        contentOffset.x -= attributesBefore.frame.size.width/2;
+        contentOffset.x = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:currentIndex-1 inSection:0]].frame.origin.x;
+    }else{
+        contentOffset.x = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:currentIndex inSection:0]].frame.origin.x;
     }
     contentOffset.x = MIN(contentOffset.x, self.collectionView.contentSize.width-self.collectionView.frame.size.width);
     contentOffset.x = MAX(contentOffset.x, 0);
@@ -205,12 +214,14 @@
 {
     NSAssert(self.delegate, @"MLScrollMenuViewDelegate is required");
     
-    NSString *title = [self.delegate titleForIndex:indexPath.row];
     //找到title对应的宽度
+    NSString *title = [self.delegate titleForIndex:indexPath.row];
     CGSize size = [self singleSizeWithFont:self.titleFont string:title];
     size.height = collectionView.frame.size.height-(collectionView.contentInset.top+collectionView.contentInset.bottom);
     
     size.width+=kMLScrollMenuViewCollectionViewCellXPadding*2;
+    
+    size.width = MAX(size.width, self.minCellWidth);
     
     return size;
 }
@@ -244,7 +255,12 @@
     //找到对应cell的位置
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
     
-    return CGRectMake(attributes.frame.origin.x+kMLScrollMenuViewCollectionViewCellXPadding, attributes.frame.size.height, attributes.frame.size.width-kMLScrollMenuViewCollectionViewCellXPadding*2, kMLScrollMenuViewIndicatorViewHeight);
+    //找到title对应的宽度
+    NSString *title = [self.delegate titleForIndex:index];
+    CGSize size = [self singleSizeWithFont:self.titleFont string:title];
+    size.width += kMLScrollMenuViewIndicatorViewXPadding*2;
+    
+    return CGRectMake(attributes.frame.origin.x+(attributes.frame.size.width-size.width)/2, attributes.frame.size.height, size.width, kMLScrollMenuViewIndicatorViewHeight);
 }
 
 #pragma mark - outcall

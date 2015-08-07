@@ -17,6 +17,7 @@
 
 #define kMLScrollMenuViewCollectionViewCellXPadding 10.0f
 #define kMLScrollMenuViewIndicatorViewHeight 3.0f
+#define kMLScrollMenuViewIndicatorViewXPadding 5.0f
 @interface MLScrollMenuView : UIView
 
 @property (nonatomic, weak) id<MLScrollMenuViewDelegate> delegate;
