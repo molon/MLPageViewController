@@ -137,8 +137,25 @@
 - (void)setCurrentIndex:(NSInteger)currentIndex
 {
     NSAssert(currentIndex>=0&&currentIndex<[self.delegate titleCount], @"currentIndex设置越界");
+    
     _currentIndex = currentIndex;
 
+    //移动contentOffset
+    CGPoint contentOffset = self.collectionView.contentOffset;
+    
+    //找到新index位置
+    UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:currentIndex inSection:0]];
+    contentOffset.x = attributes.frame.origin.x;
+    //找到其前一个位置的frame
+    if (currentIndex!=0) {
+        UICollectionViewLayoutAttributes *attributesBefore = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:currentIndex-1 inSection:0]];
+        contentOffset.x -= attributesBefore.frame.size.width/2;
+    }
+    contentOffset.x = MIN(contentOffset.x, self.collectionView.contentSize.width-self.collectionView.frame.size.width);
+    contentOffset.x = MAX(contentOffset.x, 0);
+    
+    [self.collectionView setContentOffset:contentOffset animated:YES];
+    
     self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
 }
 

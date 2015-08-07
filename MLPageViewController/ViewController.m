@@ -28,7 +28,7 @@
     
     [self.view addSubview:self.button];
     
-    self.titles = @[@"大杂烩",@"鞋服配饰",@"母婴",@"奢侈品",@"家居日用",@"数码电子",@"影音家电",@"交通工具",@"萌宠"];
+    self.titles = @[@"大杂烩",@"鞋服配饰"/*,@"母婴",@"奢侈品",@"家居日用",@"数码电子",@"影音家电",@"交通工具",@"萌宠"*/];
     [self.view addSubview:self.scrollMenuView];
 }
 
@@ -73,14 +73,13 @@
     self.scrollMenuView.frame = CGRectMake(0, 64, self.view.frame.size.width, 36.0f);
 }
 
-
 #pragma mark - event
 - (void)click
 {
-    if (self.scrollMenuView.currentIndex==self.titles.count-1) {
-        [self.scrollMenuView setCurrentIndex:0 animated:YES];
+    if (self.scrollMenuView.currentIndex==0) {
+        [self.scrollMenuView setCurrentIndex:self.titles.count-1 animated:YES];
     }else{
-        [self.scrollMenuView setCurrentIndex:self.scrollMenuView.currentIndex+1 animated:YES];
+        [self.scrollMenuView setCurrentIndex:self.scrollMenuView.currentIndex-1 animated:YES];
     }
 }
 
