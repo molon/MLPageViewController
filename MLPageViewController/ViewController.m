@@ -28,7 +28,7 @@
     
     [self.view addSubview:self.button];
     
-    self.titles = @[@"大杂烩",@"鞋服配饰"/*,@"母婴",@"奢侈品",@"家居日用",@"数码电子",@"影音家电",@"交通工具",@"萌宠"*/];
+    self.titles = @[@"大杂烩",@"鞋服配饰",@"母婴",@"奢侈品",@"家居日用",@"数码电子",@"影音家电",@"交通工具",@"萌宠"];
     [self.view addSubview:self.scrollMenuView];
 }
 

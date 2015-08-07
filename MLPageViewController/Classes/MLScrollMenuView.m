@@ -229,6 +229,8 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     [collectionView deselectItemAtIndexPath:indexPath animated:NO];
+    
+    [self setCurrentIndex:indexPath.row animated:YES];
 }
 
 #pragma mark - helper
