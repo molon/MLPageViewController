@@ -16,6 +16,7 @@
 @property (nonatomic, strong,readonly) NSArray *viewControllers;
 //默认为YES，可自动调整上下留空以适应导航器和tabController。
 @property (nonatomic, assign) BOOL autoAdjustTopAndBottomBlank;
+@property (nonatomic, assign) BOOL dontScrollWhenDirectClickMenu; //当直接点击菜单时候不滚动
 
 - (instancetype)initWithViewControllers:(NSArray *)viewControllers;
 

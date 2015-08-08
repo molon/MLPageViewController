@@ -22,6 +22,7 @@
 @property (nonatomic, strong) NSArray *viewControllers;
 
 @property (nonatomic, assign) BOOL ignoreSetCurrentIndex;
+@property (nonatomic, assign) BOOL dontChangeDisplayMenuView;
 
 @property (nonatomic, strong) NSMutableDictionary *viewControllerAppearanceTransitionMap;
 
@@ -63,6 +64,7 @@
     for (int i = 0; i < self.viewControllers.count; i++) {
         UIViewController *vc = self.viewControllers[i];
         [vc performSelector:@selector(view) withObject:nil];
+        
     }
     
     //直接add第一个,至于其viewWillAppear和didAppear啥的会随着container vc传递下去
@@ -181,6 +183,12 @@
             return;
         }
         
+        if (!self.dontScrollWhenDirectClickMenu) {
+            self.dontChangeDisplayMenuView = YES;
+            [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0) animated:YES];
+            return;
+        }
+        
         //以前的disappear，新的appear
         UIViewController *oldCurrentVC = self.viewControllers[oldCurrentIndex];
         UIViewController *newCurrentVC = self.viewControllers[currentIndex];
@@ -227,7 +235,6 @@
     BOOL isScrollToRight = self.lastContentOffsetX<scrollView.contentOffset.x;
     self.lastContentOffsetX = scrollView.contentOffset.x;
     
-    
     NSInteger leftIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
     if (leftIndex<0||leftIndex+1>self.viewControllers.count-1) {
         return;
@@ -235,7 +242,9 @@
     NSInteger rightIndex = leftIndex+1;
     CGFloat leftToRightRatio = (scrollView.contentOffset.x - leftIndex * scrollView.frame.size.width) / scrollView.frame.size.width;
     
-    [self.scrollMenuView displayFromIndex:leftIndex toIndex:rightIndex ratio:fabs(leftToRightRatio)];
+    if (!self.dontChangeDisplayMenuView) {
+        [self.scrollMenuView displayFromIndex:leftIndex toIndex:rightIndex ratio:fabs(leftToRightRatio)];
+    }
     
     //处理view appear
     if (leftToRightRatio==0.0f) {
@@ -313,11 +322,21 @@
     }
 }
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    self.dontChangeDisplayMenuView = NO;
+}
+
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if (!decelerate) {
         [self scrollViewDidEndDecelerating:scrollView];
     }
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+{
+    [self scrollViewDidEndDecelerating:scrollView];
 }
 
 #pragma mark - helper
