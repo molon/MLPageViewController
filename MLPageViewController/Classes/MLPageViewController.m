@@ -24,8 +24,7 @@
 
 @property (nonatomic, assign) BOOL ignoreSetCurrentIndex;
 
-
-@property (nonatomic, strong) NSMutableArray *viewControllerAppearanceTransitions;
+@property (nonatomic, strong) NSMutableDictionary *viewControllerAppearanceTransitionMap;
 
 @end
 
@@ -107,12 +106,10 @@
 {
     _viewControllers = viewControllers;
     
-    NSMutableArray *viewControllerAppearanceTransitions = [NSMutableArray arrayWithCapacity:viewControllers.count];
-    
-    for (NSInteger i=0; i<viewControllers.count; i++) {
-        [viewControllerAppearanceTransitions addObject:@(NO)];
+    self.viewControllerAppearanceTransitionMap = [NSMutableDictionary dictionaryWithCapacity:viewControllers.count];
+    for (UIViewController *vc in viewControllers) {
+        [self setLastAppearanceTransition:NO forViewController:vc];
     }
-    self.viewControllerAppearanceTransitions = viewControllerAppearanceTransitions;
 }
 
 #pragma mark - layout
@@ -203,12 +200,12 @@
         [self addChildViewController:targetVC];
         [self.scrollView addSubview:targetVC.view];
         [targetVC beginAppearanceTransition:YES animated:YES];
-        self.viewControllerAppearanceTransitions[targetIndex] = @(YES);
+        [self setLastAppearanceTransition:YES forViewController:targetVC];
         
         //将要remove
         [currentVC willMoveToParentViewController:nil];
         [currentVC beginAppearanceTransition:NO animated:YES];
-        self.viewControllerAppearanceTransitions[currentIndex] = @(NO);
+        [self setLastAppearanceTransition:NO forViewController:currentVC];
     }
 }
 
@@ -222,9 +219,10 @@
     
     
     UIViewController *currentVC = self.viewControllers[currentIndex];
-    if (![self.viewControllerAppearanceTransitions[currentIndex] boolValue]) {
+    if (![self lastAppearanceTransitionForViewController:currentVC]) {
         [currentVC beginAppearanceTransition:YES animated:YES];
     }
+    
     [currentVC endAppearanceTransition];
     [currentVC didMoveToParentViewController:self];
     
@@ -235,7 +233,7 @@
         if ([vc.view.superview isEqual:self.scrollView]) {
             [vc.view removeFromSuperview];
             [vc removeFromParentViewController];
-            if ([self.viewControllerAppearanceTransitions[[self.viewControllers indexOfObject:vc]] boolValue]) {
+            if ([self lastAppearanceTransitionForViewController:vc]) {
                 [vc beginAppearanceTransition:NO animated:YES];
             }
             [vc endAppearanceTransition];
@@ -252,18 +250,15 @@
 
 #pragma mark - helper
 //出发didappear和diddisappear
-- (void)setDidAppearViewControllerWithIndex:(NSInteger)index
+- (BOOL)lastAppearanceTransitionForViewController:(UIViewController*)vc
 {
-    for (NSInteger i=0; i<self.viewControllers.count; i++) {
-        UIViewController *vc = self.viewControllers[i];
-        if (index==i) {
-            [vc didMoveToParentViewController:self];
-        }else{
-            if ([vc.parentViewController isEqual:self]) {
-                [vc.view removeFromSuperview];
-                [vc removeFromParentViewController];
-            }
-        }
-    }
+    NSString *pointerString = [NSString stringWithFormat:@"%p",vc];
+    return [self.viewControllerAppearanceTransitionMap[pointerString] boolValue];
+}
+
+- (void)setLastAppearanceTransition:(BOOL)appearanceTransition forViewController:(UIViewController*)vc
+{
+    NSString *pointerString = [NSString stringWithFormat:@"%p",vc];
+    self.viewControllerAppearanceTransitionMap[pointerString] = @(appearanceTransition);
 }
 @end
