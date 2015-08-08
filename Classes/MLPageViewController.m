@@ -175,7 +175,7 @@
 - (void)didChangedCurrentIndex:(NSInteger)currentIndex scrollMenuView:(MLScrollMenuView*)scrollMenuView
 {
     if (!self.ignoreSetCurrentIndex) {
-        //不让触发scrollViewDidScroll
+        //直接点击过来的和手动拖的完全分隔开，不用一回事
         NSInteger oldCurrentIndex = floor(self.scrollView.contentOffset.x / self.scrollView.frame.size.width);
         if (oldCurrentIndex==currentIndex) {
             return;
@@ -195,6 +195,7 @@
         }
         [newCurrentVC beginAppearanceTransition:YES animated:NO];
         
+        //不让触发scrollViewDidScroll
         self.scrollView.delegate = nil;
         self.scrollView.contentOffset = CGPointMake(currentIndex * self.scrollView.frame.size.width, 0);
         self.scrollView.delegate = self;
