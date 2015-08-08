@@ -68,6 +68,7 @@
     self.exclusiveTouch = YES;
     _titleFont = [UIFont boldSystemFontOfSize:14.0f];
     _titleColor = [UIColor blackColor];
+    _currentTitleColor = [UIColor redColor];
     _indicatorColor = [UIColor colorWithRed:0.996 green:0.827 blue:0.216 alpha:1.000];
     
     [self addSubview:self.backgroundImageView];
@@ -149,6 +150,13 @@
     [self reloadData];
 }
 
+- (void)setCurrentTitleColor:(UIColor *)currentTitleColor
+{
+    _currentTitleColor = currentTitleColor;
+    
+    [self reloadData];
+}
+
 - (void)setTitleFont:(UIFont *)titleFont
 {
     _titleFont = titleFont;
@@ -167,7 +175,15 @@
 {
     NSAssert(currentIndex>=0&&currentIndex<[self.delegate titleCount], @"currentIndex设置越界");
     
+    NSInteger originalCurrentIndex = _currentIndex;
+    
     _currentIndex = currentIndex;
+    
+    if (currentIndex==originalCurrentIndex) {
+        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:currentIndex inSection:0]]];
+    }else{
+        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:currentIndex inSection:0],[NSIndexPath indexPathForRow:originalCurrentIndex inSection:0]]];
+    }
     
     if (self.changeCurrentIndexAnimated) {
         [UIView animateWithDuration:.25f animations:^{
@@ -219,7 +235,7 @@
     NSString *title = [self.delegate titleForIndex:indexPath.row];
     
     cell.titleLabel.font = self.titleFont;
-    cell.titleLabel.textColor = self.titleColor;
+    cell.titleLabel.textColor = self.currentIndex==indexPath.row?self.currentTitleColor:self.titleColor;
     cell.titleLabel.text = title;
     
     return cell;

@@ -29,6 +29,7 @@
 //可以自定义的一些样式
 @property (nonatomic, strong) UIFont *titleFont;
 @property (nonatomic, strong) UIColor *titleColor;
+@property (nonatomic, strong) UIColor *currentTitleColor;
 @property (nonatomic, strong) UIColor *indicatorColor;
 
 @property (nonatomic, strong, readonly) UIImageView *backgroundImageView;
