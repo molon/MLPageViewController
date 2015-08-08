@@ -74,7 +74,6 @@
         _scrollView.contentSize = CGSizeMake(self.view.frame.size.width*self.titles.count, 300);
         _scrollView.pagingEnabled = YES;
         _scrollView.backgroundColor = [UIColor colorWithRed:0.772 green:0.771 blue:0.000 alpha:1.000];
-        _scrollView.delegate = self;
     }
     return _scrollView;
 }
@@ -115,24 +114,5 @@
 
 
 #pragma mark -- ScrollView Delegate
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    int scrollCurrentIndex = scrollView.contentOffset.x / scrollView.frame.size.width;
-    
-    CGFloat oldPointX = scrollCurrentIndex * scrollView.frame.size.width;
-    CGFloat ratio = (scrollView.contentOffset.x - oldPointX) / scrollView.frame.size.width;
-    
-    BOOL isToNextItem = (scrollView.contentOffset.x > oldPointX);
-    NSInteger targetIndex = (isToNextItem) ? scrollCurrentIndex + 1 : scrollCurrentIndex - 1;
-    [self.scrollMenuView displayForTargetIndex:targetIndex targetIsNext:isToNextItem ratio:fabs(ratio)];
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-{
-    int currentIndex = scrollView.contentOffset.x / scrollView.frame.size.width;
-    
-    [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
-}
 
 @end

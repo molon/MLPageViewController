@@ -22,7 +22,7 @@
     self.window.backgroundColor = [UIColor whiteColor];
     
     NSMutableArray *array = [NSMutableArray array];
-    for (NSInteger i=0; i<2; i++) {
+    for (NSInteger i=0; i<12; i++) {
         TempViewController *temp = [TempViewController new];
         temp.title = [NSString stringWithFormat:@"%ld",i];
         [array addObject:temp];

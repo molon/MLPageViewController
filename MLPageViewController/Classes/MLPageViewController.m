@@ -18,10 +18,14 @@
 
 @property (nonatomic, strong) MLScrollMenuView *scrollMenuView;
 @property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, assign) CGFloat lastContentOffsetX;
 
 @property (nonatomic, strong) NSArray *viewControllers;
 
 @property (nonatomic, assign) BOOL ignoreSetCurrentIndex;
+
+
+@property (nonatomic, strong) NSMutableArray *viewControllerAppearanceTransitions;
 
 @end
 
@@ -61,6 +65,13 @@
         UIViewController *vc = self.viewControllers[i];
         [vc performSelector:@selector(view) withObject:nil];
     }
+    
+    //直接add第一个,至于其viewWillAppear和didAppear啥的会随着container vc传递下去
+    if (self.viewControllers.count>0) {
+        UIViewController *vc = [self.viewControllers firstObject];
+        [self addChildViewController:vc];
+        [self.scrollView addSubview:vc.view];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -89,6 +100,19 @@
         _scrollView.pagingEnabled = YES;
     }
     return _scrollView;
+}
+
+#pragma mark - setter
+- (void)setViewControllers:(NSArray *)viewControllers
+{
+    _viewControllers = viewControllers;
+    
+    NSMutableArray *viewControllerAppearanceTransitions = [NSMutableArray arrayWithCapacity:viewControllers.count];
+    
+    for (NSInteger i=0; i<viewControllers.count; i++) {
+        [viewControllerAppearanceTransitions addObject:@(NO)];
+    }
+    self.viewControllerAppearanceTransitions = viewControllerAppearanceTransitions;
 }
 
 #pragma mark - layout
@@ -131,34 +155,61 @@
     if (!self.ignoreSetCurrentIndex) {
         [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0) animated:YES];
     }
-//    [self setDidAppearViewControllerWithIndex:currentIndex];
-#warning 。。。
-//    [self setChildViewControllerWithCurrentIndex:index];
 }
 
 #pragma mark -- ScrollView Delegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    int scrollCurrentIndex = scrollView.contentOffset.x / scrollView.frame.size.width;
+    if (self.lastContentOffsetX==scrollView.contentOffset.x) {return;}
+    BOOL isScrollToRight = self.lastContentOffsetX<scrollView.contentOffset.x;
+    self.lastContentOffsetX = scrollView.contentOffset.x;
     
-    CGFloat oldOffsetX = scrollCurrentIndex * scrollView.frame.size.width;
-    CGFloat ratio = (scrollView.contentOffset.x - oldOffsetX) / scrollView.frame.size.width;
     
-    BOOL isToNextItem = (scrollView.contentOffset.x > oldOffsetX);
-    NSInteger targetIndex = (isToNextItem) ? scrollCurrentIndex + 1 : scrollCurrentIndex - 1;
-    if (targetIndex<0||targetIndex>self.viewControllers.count-1) {
+    NSInteger leftIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
+    if (leftIndex<0||leftIndex+1>self.viewControllers.count-1) {
         return;
     }
-//    UIViewController *currentVC = self.viewControllers[scrollCurrentIndex];
-//    UIViewController *targetVC = self.viewControllers[targetIndex];
-//    
-//#warning 有问题
-////    [currentVC willMoveToParentViewController:nil];
-//
-//    [self addChildViewController:targetVC];
-//    [self.scrollView addSubview:targetVC.view];
+    NSInteger rightIndex = leftIndex+1;
+    CGFloat leftToRightRatio = (scrollView.contentOffset.x - leftIndex * scrollView.frame.size.width) / scrollView.frame.size.width;
     
-    [self.scrollMenuView displayForTargetIndex:targetIndex targetIsNext:isToNextItem ratio:fabs(ratio)];
+    [self.scrollMenuView displayFromIndex:leftIndex toIndex:rightIndex ratio:fabs(leftToRightRatio)];
+    
+    //处理view appear
+    if (leftToRightRatio==0.0f) {
+        return;
+    }
+    
+    NSInteger targetIndex = isScrollToRight?rightIndex:leftIndex;
+    NSInteger currentIndex = isScrollToRight?leftIndex:rightIndex;
+    
+    //目的是找到目标vc，并且其没add就add，没appear就appear，至于其他的非current就diddisappear，current的没willdisappear就willdisappear
+    UIViewController *currentVC = self.viewControllers[currentIndex];
+    UIViewController *targetVC = self.viewControllers[targetIndex];
+    
+    if (![targetVC.view.superview isEqual:self.scrollView]) {
+        //其他的vc disappear
+        for (UIViewController *vc in self.childViewControllers) {
+            if ([vc isEqual:currentVC]||[vc isEqual:targetVC]) {
+                continue;
+            }
+            if ([vc.view.superview isEqual:self.scrollView]) {
+                [vc.view removeFromSuperview];
+                [vc removeFromParentViewController];
+                [vc endAppearanceTransition];
+            }
+        }
+        
+        //将要add
+        [self addChildViewController:targetVC];
+        [self.scrollView addSubview:targetVC.view];
+        [targetVC beginAppearanceTransition:YES animated:YES];
+        self.viewControllerAppearanceTransitions[targetIndex] = @(YES);
+        
+        //将要remove
+        [currentVC willMoveToParentViewController:nil];
+        [currentVC beginAppearanceTransition:NO animated:YES];
+        self.viewControllerAppearanceTransitions[currentIndex] = @(NO);
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
@@ -168,6 +219,28 @@
     self.ignoreSetCurrentIndex = YES;
     [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
     self.ignoreSetCurrentIndex = NO;
+    
+    
+    UIViewController *currentVC = self.viewControllers[currentIndex];
+    if (![self.viewControllerAppearanceTransitions[currentIndex] boolValue]) {
+        [currentVC beginAppearanceTransition:YES animated:YES];
+    }
+    [currentVC endAppearanceTransition];
+    [currentVC didMoveToParentViewController:self];
+    
+    for (UIViewController *vc in self.childViewControllers) {
+        if ([vc isEqual:currentVC]) {
+            continue;
+        }
+        if ([vc.view.superview isEqual:self.scrollView]) {
+            [vc.view removeFromSuperview];
+            [vc removeFromParentViewController];
+            if ([self.viewControllerAppearanceTransitions[[self.viewControllers indexOfObject:vc]] boolValue]) {
+                [vc beginAppearanceTransition:NO animated:YES];
+            }
+            [vc endAppearanceTransition];
+        }
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate

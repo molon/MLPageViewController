@@ -281,19 +281,15 @@
     [self.collectionView reloadData];
 }
 
-#warning 如果当前的contentOfsset和新的差距大的话会直接跳到其位置有点怪怪的
-- (void)displayForTargetIndex:(NSInteger)targetIndex targetIsNext:(BOOL)targetIsNext ratio:(double)ratio
+- (void)displayFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex ratio:(double)ratio
 {
-    if (targetIndex<0||targetIndex>[self.delegate titleCount]-1) {
+    if (fromIndex<0||fromIndex>[self.delegate titleCount]-1) {
         return;
     }
-    
-    if ((targetIndex==0&&targetIsNext)||(targetIndex==[self.delegate titleCount]-1&&!targetIsNext)) {
+    if (toIndex<0||toIndex>[self.delegate titleCount]-1) {
         return;
     }
-    
-    NSInteger fromIndex = targetIsNext?targetIndex-1:targetIndex+1;
-    
+
     //当前的contentOffset
     CGPoint originalContentOffset = [self contentOffsetWidthIndex:fromIndex];
     
@@ -303,13 +299,13 @@
     CGRect originalIndicatorFrame = [self indicatorFrameWithIndex:fromIndex];
     
     //移动contentOffset
-    CGPoint contentOffset = [self contentOffsetWidthIndex:targetIndex];
+    CGPoint contentOffset = [self contentOffsetWidthIndex:toIndex];
     
     //取个中间位置的即可
     contentOffset.x = originalContentOffset.x+(contentOffset.x-originalContentOffset.x)*ratio;
     
     
-    CGRect indicatorFrame = [self indicatorFrameWithIndex:targetIndex];
+    CGRect indicatorFrame = [self indicatorFrameWithIndex:toIndex];
     indicatorFrame.origin.x = originalIndicatorFrame.origin.x+(indicatorFrame.origin.x-originalIndicatorFrame.origin.x)*ratio;
     indicatorFrame.size.width = originalIndicatorFrame.size.width+(indicatorFrame.size.width-originalIndicatorFrame.size.width)*ratio;
     

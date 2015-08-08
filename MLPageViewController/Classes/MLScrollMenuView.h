@@ -36,6 +36,6 @@
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated;
 
 //临时的显示去目标index的动画中间位置
-- (void)displayForTargetIndex:(NSInteger)targetIndex targetIsNext:(BOOL)targetIsNext ratio:(double)ratio;
+- (void)displayFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex ratio:(double)ratio;
 
 @end

@@ -14,6 +14,24 @@
 
 @implementation MLContainerController
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.automaticallyAdjustsScrollViewInsets = NO;
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        self.automaticallyAdjustsScrollViewInsets = NO;
+    }
+    return self;
+}
+
 #pragma mark Overrides
 //NS_DEPRECATED_IOS(5_0,6_0)
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers{
