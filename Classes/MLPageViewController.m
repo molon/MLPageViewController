@@ -175,7 +175,47 @@
 - (void)didChangedCurrentIndex:(NSInteger)currentIndex scrollMenuView:(MLScrollMenuView*)scrollMenuView
 {
     if (!self.ignoreSetCurrentIndex) {
-        [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0) animated:YES];
+        //不让触发scrollViewDidScroll
+        NSInteger oldCurrentIndex = floor(self.scrollView.contentOffset.x / self.scrollView.frame.size.width);
+        if (oldCurrentIndex==currentIndex) {
+            return;
+        }
+        
+        //以前的disappear，新的appear
+        UIViewController *oldCurrentVC = self.viewControllers[oldCurrentIndex];
+        UIViewController *newCurrentVC = self.viewControllers[currentIndex];
+        
+        [oldCurrentVC willMoveToParentViewController:nil];
+        [oldCurrentVC beginAppearanceTransition:NO animated:NO];
+        [self setLastAppearanceTransition:NO forViewController:oldCurrentVC];
+        
+        [self addChildViewController:newCurrentVC];
+        if (![newCurrentVC.view.superview isEqual:self.scrollView]) {
+            [self.scrollView addSubview:newCurrentVC.view];
+        }
+        [newCurrentVC beginAppearanceTransition:YES animated:NO];
+        
+        self.scrollView.delegate = nil;
+        self.scrollView.contentOffset = CGPointMake(currentIndex * self.scrollView.frame.size.width, 0);
+        self.scrollView.delegate = self;
+        
+        [newCurrentVC endAppearanceTransition];
+        [newCurrentVC didMoveToParentViewController:self];
+        
+        for (UIViewController *vc in self.childViewControllers) {
+            if ([vc isEqual:newCurrentVC]) {
+                continue;
+            }
+            if ([vc.view.superview isEqual:self.scrollView]) {
+                [vc.view removeFromSuperview];
+                [vc removeFromParentViewController];
+                if ([self lastAppearanceTransitionForViewController:vc]) {
+                    [vc beginAppearanceTransition:NO animated:NO];
+                    [self setLastAppearanceTransition:NO forViewController:vc];
+                }
+                [vc endAppearanceTransition];
+            }
+        }
     }
 }
 
@@ -236,13 +276,16 @@
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    int currentIndex = scrollView.contentOffset.x / scrollView.frame.size.width;
+    NSInteger currentIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
+    if (currentIndex<0||currentIndex>self.viewControllers.count-1) {
+        return;
+    }
     
     self.ignoreSetCurrentIndex = YES;
     [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
     self.ignoreSetCurrentIndex = NO;
     
-    if (self.childViewControllers.count<=1) { //这个是用于边界无效拖动时候过滤
+    if (self.childViewControllers.count>1) { //这个是用于边界无效拖动时候过滤
         UIViewController *currentVC = self.viewControllers[currentIndex];
         if (![self lastAppearanceTransitionForViewController:currentVC]) {
             [currentVC beginAppearanceTransition:YES animated:YES];

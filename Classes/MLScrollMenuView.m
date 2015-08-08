@@ -37,8 +37,9 @@
 //最小的cell宽度
 @property (nonatomic, assign) CGFloat minCellWidth;
 
-
 @property (nonatomic, strong) UIImageView *backgroundImageView;
+
+@property (nonatomic, assign) BOOL changeCurrentIndexAnimated;
 
 @end
 
@@ -168,9 +169,15 @@
     
     _currentIndex = currentIndex;
     
-    [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:YES];
-    
-    self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
+    if (self.changeCurrentIndexAnimated) {
+        [UIView animateWithDuration:.25f animations:^{
+            [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:YES];
+            self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
+        }];
+    }else{
+        [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:YES];
+        self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
+    }
     
     if (self.delegate&&[self.delegate respondsToSelector:@selector(didChangedCurrentIndex:scrollMenuView:)]) {
         [self.delegate didChangedCurrentIndex:currentIndex scrollMenuView:self];
@@ -179,13 +186,10 @@
 
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated
 {
-    if (animated) {
-        [UIView animateWithDuration:.25f animations:^{
-            self.currentIndex = currentIndex;
-        }];
-    }else{
-        self.currentIndex = currentIndex;
-    }
+    //不直接用动画block包括进来是怕didChangedCurrentIndex里有对其他view进行调整的同时也被动画了
+    self.changeCurrentIndexAnimated = animated;
+    self.currentIndex = currentIndex;
+    self.changeCurrentIndexAnimated = NO;
 }
 
 #pragma mark - layout
