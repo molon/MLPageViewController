@@ -352,7 +352,8 @@
     
     [self.collectionView setContentOffset:contentOffset animated:NO];
     
-    [self updateTitleColorWithCurrentIndex:fromIndex];
+    NSInteger highlightedIndex = ratio<.5f?fromIndex:toIndex;
+    [self updateTitleColorWithCurrentIndex:highlightedIndex];
 }
 
 @end
