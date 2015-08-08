@@ -1,0 +1,6 @@
+module MLPageViewController {
+  umbrella header "MLPageViewController-umbrella.h"
+
+  export *
+  module * { export * }
+}

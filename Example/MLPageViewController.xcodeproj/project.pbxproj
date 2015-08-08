@@ -7,16 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		23A44035BAB8D6D5F83956F4 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C96D32E9ECEE3653493A017E /* libPods.a */; };
 		369BE7231B73690B00FDAE27 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 369BE7221B73690B00FDAE27 /* main.m */; };
 		369BE7261B73690B00FDAE27 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 369BE7251B73690B00FDAE27 /* AppDelegate.m */; };
 		369BE72E1B73690B00FDAE27 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 369BE72D1B73690B00FDAE27 /* Images.xcassets */; };
 		369BE7311B73690B00FDAE27 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 369BE72F1B73690B00FDAE27 /* LaunchScreen.xib */; };
 		369BE73D1B73690B00FDAE27 /* MLPageViewControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 369BE73C1B73690B00FDAE27 /* MLPageViewControllerTests.m */; };
-		36D17E561B746D5900A1ACC2 /* MLScrollMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E551B746D5900A1ACC2 /* MLScrollMenuView.m */; };
-		36D17E591B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E581B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m */; };
-		36D17E5C1B74A61A00A1ACC2 /* MLPageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E5B1B74A61A00A1ACC2 /* MLPageViewController.m */; };
 		36D17E621B74A96800A1ACC2 /* TempViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E611B74A96800A1ACC2 /* TempViewController.m */; };
-		36D17E661B75AAAA00A1ACC2 /* MLContainerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E651B75AAAA00A1ACC2 /* MLContainerController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,16 +37,11 @@
 		369BE7361B73690B00FDAE27 /* MLPageViewControllerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MLPageViewControllerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		369BE73B1B73690B00FDAE27 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		369BE73C1B73690B00FDAE27 /* MLPageViewControllerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MLPageViewControllerTests.m; sourceTree = "<group>"; };
-		36D17E541B746D5900A1ACC2 /* MLScrollMenuView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLScrollMenuView.h; sourceTree = "<group>"; };
-		36D17E551B746D5900A1ACC2 /* MLScrollMenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLScrollMenuView.m; sourceTree = "<group>"; };
-		36D17E571B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLScrollMenuCollectionViewCell.h; sourceTree = "<group>"; };
-		36D17E581B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLScrollMenuCollectionViewCell.m; sourceTree = "<group>"; };
-		36D17E5A1B74A61A00A1ACC2 /* MLPageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLPageViewController.h; sourceTree = "<group>"; };
-		36D17E5B1B74A61A00A1ACC2 /* MLPageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLPageViewController.m; sourceTree = "<group>"; };
 		36D17E601B74A96800A1ACC2 /* TempViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TempViewController.h; sourceTree = "<group>"; };
 		36D17E611B74A96800A1ACC2 /* TempViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TempViewController.m; sourceTree = "<group>"; };
-		36D17E641B75AAAA00A1ACC2 /* MLContainerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLContainerController.h; sourceTree = "<group>"; };
-		36D17E651B75AAAA00A1ACC2 /* MLContainerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLContainerController.m; sourceTree = "<group>"; };
+		B49B8ABBB07F725C3A67E717 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		C96D32E9ECEE3653493A017E /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF338798CB8D4FF7401A0C09 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +49,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23A44035BAB8D6D5F83956F4 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,12 +63,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		258DB7695B2A9A9DFC443375 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				EF338798CB8D4FF7401A0C09 /* Pods.debug.xcconfig */,
+				B49B8ABBB07F725C3A67E717 /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		369BE7141B73690B00FDAE27 = {
 			isa = PBXGroup;
 			children = (
 				369BE71F1B73690B00FDAE27 /* MLPageViewController */,
 				369BE7391B73690B00FDAE27 /* MLPageViewControllerTests */,
 				369BE71E1B73690B00FDAE27 /* Products */,
+				258DB7695B2A9A9DFC443375 /* Pods */,
+				ED1BA367E275E0DA2120E047 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -91,7 +95,6 @@
 		369BE71F1B73690B00FDAE27 /* MLPageViewController */ = {
 			isa = PBXGroup;
 			children = (
-				36D17E4A1B744E9900A1ACC2 /* Classes */,
 				369BE7241B73690B00FDAE27 /* AppDelegate.h */,
 				369BE7251B73690B00FDAE27 /* AppDelegate.m */,
 				36D17E601B74A96800A1ACC2 /* TempViewController.h */,
@@ -129,19 +132,12 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		36D17E4A1B744E9900A1ACC2 /* Classes */ = {
+		ED1BA367E275E0DA2120E047 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				36D17E541B746D5900A1ACC2 /* MLScrollMenuView.h */,
-				36D17E551B746D5900A1ACC2 /* MLScrollMenuView.m */,
-				36D17E571B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.h */,
-				36D17E581B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m */,
-				36D17E5A1B74A61A00A1ACC2 /* MLPageViewController.h */,
-				36D17E5B1B74A61A00A1ACC2 /* MLPageViewController.m */,
-				36D17E641B75AAAA00A1ACC2 /* MLContainerController.h */,
-				36D17E651B75AAAA00A1ACC2 /* MLContainerController.m */,
+				C96D32E9ECEE3653493A017E /* libPods.a */,
 			);
-			path = Classes;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -151,9 +147,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 369BE7401B73690B00FDAE27 /* Build configuration list for PBXNativeTarget "MLPageViewController" */;
 			buildPhases = (
+				AFAC5235CFA4FD1A31109654 /* Check Pods Manifest.lock */,
 				369BE7191B73690B00FDAE27 /* Sources */,
 				369BE71A1B73690B00FDAE27 /* Frameworks */,
 				369BE71B1B73690B00FDAE27 /* Resources */,
+				B0BD7C2598D95381BAE4B1FA /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -238,17 +236,46 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		AFAC5235CFA4FD1A31109654 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		B0BD7C2598D95381BAE4B1FA /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		369BE7191B73690B00FDAE27 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				369BE7261B73690B00FDAE27 /* AppDelegate.m in Sources */,
-				36D17E661B75AAAA00A1ACC2 /* MLContainerController.m in Sources */,
-				36D17E5C1B74A61A00A1ACC2 /* MLPageViewController.m in Sources */,
-				36D17E561B746D5900A1ACC2 /* MLScrollMenuView.m in Sources */,
 				36D17E621B74A96800A1ACC2 /* TempViewController.m in Sources */,
-				36D17E591B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m in Sources */,
 				369BE7231B73690B00FDAE27 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -365,6 +392,7 @@
 		};
 		369BE7411B73690B00FDAE27 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EF338798CB8D4FF7401A0C09 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -377,6 +405,7 @@
 		};
 		369BE7421B73690B00FDAE27 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B49B8ABBB07F725C3A67E717 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;

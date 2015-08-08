@@ -49,7 +49,7 @@
 
 - (void)setUp
 {
-    self.autoAdjustTopAndBottomBlank = YES;
+    _autoAdjustTopAndBottomBlank = YES;
 }
 
 - (void)viewDidLoad {
@@ -175,7 +175,7 @@
     }
 }
 
-#pragma mark -- ScrollView Delegate
+#pragma mark - scrollView delegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if (self.lastContentOffsetX==scrollView.contentOffset.x) {return;}
@@ -238,7 +238,7 @@
     [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
     self.ignoreSetCurrentIndex = NO;
     
-    if (self.childViewControllers.count!=1) { //这个是用于边界无效拖动时候过滤
+    if (self.childViewControllers.count<=1) { //这个是用于边界无效拖动时候过滤
         UIViewController *currentVC = self.viewControllers[currentIndex];
         if (![self lastAppearanceTransitionForViewController:currentVC]) {
             [currentVC beginAppearanceTransition:YES animated:YES];

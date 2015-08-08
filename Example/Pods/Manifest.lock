@@ -1,0 +1,14 @@
+PODS:
+  - MLPageViewController (1.0.0)
+
+DEPENDENCIES:
+  - MLPageViewController (from `../MLPageViewController.podspec`)
+
+EXTERNAL SOURCES:
+  MLPageViewController:
+    :path: "../MLPageViewController.podspec"
+
+SPEC CHECKSUMS:
+  MLPageViewController: dcb5cf8398a6edeb47934e50d499c58a59920061
+
+COCOAPODS: 0.38.1
