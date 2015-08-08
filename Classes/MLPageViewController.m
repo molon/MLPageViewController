@@ -60,11 +60,10 @@
     [self.view addSubview:self.scrollMenuView];
     [self.view addSubview:self.scrollView];
     
-    //直接让子vc viewdidload,对性能有好处
+    //直接让子vc viewdidload,对性能有点好处
     for (int i = 0; i < self.viewControllers.count; i++) {
         UIViewController *vc = self.viewControllers[i];
         [vc performSelector:@selector(view) withObject:nil];
-        
     }
     
     //直接add第一个,至于其viewWillAppear和didAppear啥的会随着container vc传递下去
@@ -72,6 +71,7 @@
         UIViewController *vc = [self.viewControllers firstObject];
         [self addChildViewController:vc];
         [self.scrollView addSubview:vc.view];
+        [vc didMoveToParentViewController:self];
     }
 }
 
@@ -79,7 +79,6 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
 
 #pragma mark - getter
 - (MLScrollMenuView *)scrollMenuView
@@ -199,6 +198,7 @@
         
         [self addChildViewController:newCurrentVC];
         if (![newCurrentVC.view.superview isEqual:self.scrollView]) {
+            [newCurrentVC.view removeFromSuperview];
             [self.scrollView addSubview:newCurrentVC.view];
         }
         [newCurrentVC beginAppearanceTransition:YES animated:NO];
@@ -216,12 +216,12 @@
                 continue;
             }
             if ([vc.view.superview isEqual:self.scrollView]) {
-                [vc.view removeFromSuperview];
-                [vc removeFromParentViewController];
                 if ([self lastAppearanceTransitionForViewController:vc]) {
                     [vc beginAppearanceTransition:NO animated:NO];
                     [self setLastAppearanceTransition:NO forViewController:vc];
                 }
+                [vc.view removeFromSuperview];
+                [vc removeFromParentViewController];
                 [vc endAppearanceTransition];
             }
         }
@@ -273,7 +273,10 @@
         
         //将要add
         [self addChildViewController:targetVC];
-        [self.scrollView addSubview:targetVC.view];
+        if (![targetVC.view.superview isEqual:self.scrollView]) {
+            [targetVC.view removeFromSuperview];
+            [self.scrollView addSubview:targetVC.view];
+        }
         [targetVC beginAppearanceTransition:YES animated:YES];
         [self setLastAppearanceTransition:YES forViewController:targetVC];
         
@@ -310,12 +313,12 @@
                 continue;
             }
             if ([vc.view.superview isEqual:self.scrollView]) {
-                [vc.view removeFromSuperview];
-                [vc removeFromParentViewController];
                 if ([self lastAppearanceTransitionForViewController:vc]) {
                     [vc beginAppearanceTransition:NO animated:YES];
                     [self setLastAppearanceTransition:NO forViewController:vc];
                 }
+                [vc.view removeFromSuperview];
+                [vc removeFromParentViewController];
                 [vc endAppearanceTransition];
             }
         }

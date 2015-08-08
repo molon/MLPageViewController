@@ -8,7 +8,7 @@
 
 #import "TempViewController.h"
 
-#define MARKTITLE    NSLog(@"\nTitle:%@ MARK: %s, %d",self.title, __PRETTY_FUNCTION__, __LINE__);
+#define MARKTITLE    NSLog(@"\nTitle:%@ parent:%@ MARK: %s, %d",self.title,self.parentViewController, __PRETTY_FUNCTION__, __LINE__);
 @interface TempViewController ()
 
 @property (nonatomic, strong) UILabel *label;
@@ -24,7 +24,6 @@
     self.view.backgroundColor = [UIColor whiteColor];
 //    [self.view addSubview:self.label];
     [self.view addSubview:self.button];
-    
 }
 
 - (void)didReceiveMemoryWarning {
