@@ -31,6 +31,8 @@
 @property (nonatomic, strong) UIColor *titleColor;
 @property (nonatomic, strong) UIColor *indicatorColor;
 
+@property (nonatomic, strong, readonly) UIImageView *backgroundImageView;
+
 
 - (void)reloadData;
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated;

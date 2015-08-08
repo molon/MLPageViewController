@@ -37,6 +37,9 @@
 //最小的cell宽度
 @property (nonatomic, assign) CGFloat minCellWidth;
 
+
+@property (nonatomic, strong) UIImageView *backgroundImageView;
+
 @end
 
 @implementation MLScrollMenuView
@@ -65,6 +68,8 @@
     _titleFont = [UIFont boldSystemFontOfSize:14.0f];
     _titleColor = [UIColor blackColor];
     _indicatorColor = [UIColor colorWithRed:0.996 green:0.827 blue:0.216 alpha:1.000];
+    
+    [self addSubview:self.backgroundImageView];
     
     [self addSubview:self.collectionView];
     __weak __typeof(self)weakSelf = self;
@@ -116,6 +121,17 @@
         _indicatorView.backgroundColor = self.indicatorColor;
     }
     return _indicatorView;
+}
+
+- (UIImageView *)backgroundImageView
+{
+    if (!_backgroundImageView) {
+        UIImageView *imageView = [[UIImageView alloc]init];
+        imageView.contentMode = UIViewContentModeScaleToFill;
+        
+        _backgroundImageView = imageView;
+    }
+    return _backgroundImageView;
 }
 
 #pragma mark - setter
@@ -177,6 +193,7 @@
 {
     [super layoutSubviews];
     
+    self.backgroundImageView.frame = self.bounds;
     self.collectionView.frame = self.bounds;
     self.minCellWidth = 0.0f;
     [self.collectionView reloadData];

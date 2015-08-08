@@ -131,17 +131,21 @@
     CGFloat tabBarOccupyHeight = 0.0f;
     
     if (self.autoAdjustTopAndBottomBlank) {
-        navigationBarBottomOriginY += [UIApplication sharedApplication].statusBarHidden?0.0f:20.0f;
-        if (self.navigationController) {
-            if (!self.navigationController.navigationBarHidden) {
-                navigationBarBottomOriginY += self.navigationController.navigationBar.intrinsicContentSize.height;
+        if (self.navigationController&&!self.navigationController.navigationBar.translucent) {
+            navigationBarBottomOriginY = 0.0f;
+        }else{
+            navigationBarBottomOriginY += [UIApplication sharedApplication].statusBarHidden?0.0f:20.0f;
+            if (self.navigationController) {
+                if (!self.navigationController.navigationBarHidden) {
+                    navigationBarBottomOriginY += self.navigationController.navigationBar.intrinsicContentSize.height;
+                }
             }
         }
         if (self.tabBarController&&self.tabBarController.tabBar.translucent&&!self.hidesBottomBarWhenPushed) {
             tabBarOccupyHeight += self.tabBarController.tabBar.intrinsicContentSize.height;
         }
     }
-
+    
     CGFloat baseY = navigationBarBottomOriginY;
     self.scrollMenuView.frame = CGRectMake(0, baseY, width, kDefaultMLScrollMenuViewHeight);
     baseY+=kDefaultMLScrollMenuViewHeight;
