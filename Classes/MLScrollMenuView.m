@@ -175,28 +175,22 @@
 {
     NSAssert(currentIndex>=0&&currentIndex<[self.delegate titleCount], @"currentIndex设置越界");
     
-    NSInteger originalCurrentIndex = _currentIndex;
-    
     _currentIndex = currentIndex;
-    
-    if (currentIndex==originalCurrentIndex) {
-        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:currentIndex inSection:0]]];
-    }else{
-        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:currentIndex inSection:0],[NSIndexPath indexPathForRow:originalCurrentIndex inSection:0]]];
-    }
-    
-    if (self.changeCurrentIndexAnimated) {
-        [UIView animateWithDuration:.25f animations:^{
-            [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:NO];
-            self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
-        }];
-    }else{
-        [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:NO];
-        self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
-    }
     
     if (self.delegate&&[self.delegate respondsToSelector:@selector(didChangedCurrentIndex:scrollMenuView:)]) {
         [self.delegate didChangedCurrentIndex:currentIndex scrollMenuView:self];
+    }
+    
+    [self updateTitleColorWithCurrentIndex:currentIndex];
+    
+    if (self.changeCurrentIndexAnimated) {
+        [UIView animateWithDuration:.25f animations:^{
+            [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:YES];
+            self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
+        }];
+    }else{
+        [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:YES];
+        self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
     }
 }
 
@@ -312,6 +306,14 @@
     return contentOffset;
 }
 
+- (void)updateTitleColorWithCurrentIndex:(NSInteger)currentIndex
+{
+    for (MLScrollMenuCollectionViewCell *cell in [self.collectionView visibleCells]) {
+        NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+        cell.titleLabel.textColor = (indexPath.row==currentIndex)?self.currentTitleColor:self.titleColor;
+    }
+}
+
 #pragma mark - outcall
 - (void)reloadData
 {
@@ -349,6 +351,8 @@
     self.indicatorView.frame = indicatorFrame;
     
     [self.collectionView setContentOffset:contentOffset animated:NO];
+    
+    [self updateTitleColorWithCurrentIndex:fromIndex];
 }
 
 @end
