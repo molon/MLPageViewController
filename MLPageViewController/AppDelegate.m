@@ -30,7 +30,7 @@
     
     
     MLPageViewController *pageViewController = [[MLPageViewController alloc]initWithViewControllers:array];
-    self.window.rootViewController = pageViewController;
+    self.window.rootViewController = [[UINavigationController alloc]initWithRootViewController:pageViewController];
     
     [self.window makeKeyAndVisible];
     

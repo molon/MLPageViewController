@@ -7,12 +7,12 @@
 //
 
 #import "TempViewController.h"
-#import "MLKitDebug.h"
 
 #define MARKTITLE    NSLog(@"\nTitle:%@ MARK: %s, %d",self.title, __PRETTY_FUNCTION__, __LINE__);
 @interface TempViewController ()
 
 @property (nonatomic, strong) UILabel *label;
+@property (nonatomic, strong) UIButton *button;
 
 @end
 
@@ -21,7 +21,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    [self.view addSubview:self.label];
+    self.view.backgroundColor = [UIColor whiteColor];
+//    [self.view addSubview:self.label];
+    [self.view addSubview:self.button];
     
 }
 
@@ -52,6 +54,7 @@
 {
     [super viewDidDisappear:animated];
     MARKTITLE
+    
 }
 
 #pragma mark - getter
@@ -69,11 +72,27 @@
     return _label;
 }
 
+- (UIButton *)button
+{
+    if (!_button) {
+        UIButton *button = [[UIButton alloc]init];
+        button.backgroundColor = [UIColor colorWithRed:1.000 green:0.475 blue:0.222 alpha:1.000];
+        [button setTitle:self.title forState:UIControlStateNormal];
+        [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(click) forControlEvents:UIControlEventTouchUpInside];
+        
+        _button = button;
+    }
+    return _button;
+}
+
+
 #pragma mark - setter
 - (void)setTitle:(NSString *)title
 {
     [super setTitle:title];
     self.label.text = title;
+    [self.button  setTitle:self.title forState:UIControlStateNormal];
 }
 
 #pragma mark - layout
@@ -82,5 +101,15 @@
     [super viewWillLayoutSubviews];
     self.label.frame = CGRectMake(0, 0, 100, 50);
     self.label.center = CGPointMake(self.view.frame.size.width/2, self.view.frame.size.height/2);
+    
+    self.button.frame = self.label.frame;
+}
+
+#pragma mark - event
+- (void)click
+{
+    TempViewController *vc = [TempViewController new];
+    vc.title = @"test";
+    [self.navigationController pushViewController:vc animated:YES];
 }
 @end

@@ -8,7 +8,6 @@
 
 #import "MLPageViewController.h"
 #import "MLScrollMenuView.h"
-#import "UIViewController+MLKit.h"
 
 #define CHILD(childClass,object) \
 ((childClass *)object) \
@@ -50,6 +49,7 @@
 
 - (void)setUp
 {
+    self.autoAdjustTopAndBottomBlank = YES;
 }
 
 - (void)viewDidLoad {
@@ -97,6 +97,7 @@
         _scrollView.scrollsToTop = NO;
         _scrollView.delegate = self;
         _scrollView.pagingEnabled = YES;
+        _scrollView.showsHorizontalScrollIndicator = NO;
     }
     return _scrollView;
 }
@@ -112,6 +113,12 @@
     }
 }
 
+- (void)setAutoAdjustTopAndBottomBlank:(BOOL)autoAdjustTopAndBottomBlank
+{
+    _autoAdjustTopAndBottomBlank = autoAdjustTopAndBottomBlank;
+    [self.view setNeedsLayout];
+}
+
 #pragma mark - layout
 - (void)viewWillLayoutSubviews
 {
@@ -119,10 +126,26 @@
     
     CGFloat width = self.view.frame.size.width;
     
-    CGFloat baseY = [self navigationBarBottomOriginY];
+    //自动调整上下位置
+    CGFloat navigationBarBottomOriginY = 0.0f;
+    CGFloat tabBarOccupyHeight = 0.0f;
+    
+    if (self.autoAdjustTopAndBottomBlank) {
+        navigationBarBottomOriginY += [UIApplication sharedApplication].statusBarHidden?0.0f:20.0f;
+        if (self.navigationController) {
+            if (!self.navigationController.navigationBarHidden) {
+                navigationBarBottomOriginY += self.navigationController.navigationBar.intrinsicContentSize.height;
+            }
+        }
+        if (self.tabBarController&&self.tabBarController.tabBar.translucent&&!self.hidesBottomBarWhenPushed) {
+            tabBarOccupyHeight += self.tabBarController.tabBar.intrinsicContentSize.height;
+        }
+    }
+
+    CGFloat baseY = navigationBarBottomOriginY;
     self.scrollMenuView.frame = CGRectMake(0, baseY, width, kDefaultMLScrollMenuViewHeight);
     baseY+=kDefaultMLScrollMenuViewHeight;
-    self.scrollView.frame = CGRectMake(0, baseY, width, self.view.frame.size.height-[self tabBarOccupyHeight]-baseY);
+    self.scrollView.frame = CGRectMake(0, baseY, width, self.view.frame.size.height-tabBarOccupyHeight-baseY);
     
     //设置其contentSize
     self.scrollView.contentSize = CGSizeMake(width*self.viewControllers.count, self.scrollView.frame.size.height);
@@ -131,8 +154,6 @@
     for (int i = 0; i < self.viewControllers.count; i++) {
         UIViewController *vc = self.viewControllers[i];
         vc.view.frame = CGRectMake(i*width, 0, width, self.scrollView.frame.size.height);
-#warning 测试
-        vc.view.backgroundColor = i%2?[UIColor lightGrayColor]:[UIColor colorWithRed:0.888 green:1.000 blue:0.527 alpha:1.000];
     }
 }
 
@@ -217,26 +238,29 @@
     [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
     self.ignoreSetCurrentIndex = NO;
     
-    
-    UIViewController *currentVC = self.viewControllers[currentIndex];
-    if (![self lastAppearanceTransitionForViewController:currentVC]) {
-        [currentVC beginAppearanceTransition:YES animated:YES];
-    }
-    
-    [currentVC endAppearanceTransition];
-    [currentVC didMoveToParentViewController:self];
-    
-    for (UIViewController *vc in self.childViewControllers) {
-        if ([vc isEqual:currentVC]) {
-            continue;
+    if (self.childViewControllers.count!=1) { //这个是用于边界无效拖动时候过滤
+        UIViewController *currentVC = self.viewControllers[currentIndex];
+        if (![self lastAppearanceTransitionForViewController:currentVC]) {
+            [currentVC beginAppearanceTransition:YES animated:YES];
+            [self setLastAppearanceTransition:YES forViewController:currentVC];
         }
-        if ([vc.view.superview isEqual:self.scrollView]) {
-            [vc.view removeFromSuperview];
-            [vc removeFromParentViewController];
-            if ([self lastAppearanceTransitionForViewController:vc]) {
-                [vc beginAppearanceTransition:NO animated:YES];
+        
+        [currentVC endAppearanceTransition];
+        [currentVC didMoveToParentViewController:self];
+        
+        for (UIViewController *vc in self.childViewControllers) {
+            if ([vc isEqual:currentVC]) {
+                continue;
             }
-            [vc endAppearanceTransition];
+            if ([vc.view.superview isEqual:self.scrollView]) {
+                [vc.view removeFromSuperview];
+                [vc removeFromParentViewController];
+                if ([self lastAppearanceTransitionForViewController:vc]) {
+                    [vc beginAppearanceTransition:NO animated:YES];
+                    [self setLastAppearanceTransition:NO forViewController:vc];
+                }
+                [vc endAppearanceTransition];
+            }
         }
     }
 }
