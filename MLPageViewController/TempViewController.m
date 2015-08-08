@@ -8,6 +8,8 @@
 
 #import "TempViewController.h"
 #import "MLKitDebug.h"
+
+#define MARKTITLE    NSLog(@"\nTitle:%@ MARK: %s, %d",self.title, __PRETTY_FUNCTION__, __LINE__);
 @interface TempViewController ()
 
 @property (nonatomic, strong) UILabel *label;
@@ -31,25 +33,25 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    MARK
+    MARKTITLE
 }
 
 -(void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    MARK
+    MARKTITLE
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    MARK
+    MARKTITLE
 }
 
 -(void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
-    MARK
+    MARKTITLE
 }
 
 #pragma mark - getter

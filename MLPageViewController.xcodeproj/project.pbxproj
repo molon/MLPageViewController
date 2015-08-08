@@ -18,6 +18,7 @@
 		36D17E5C1B74A61A00A1ACC2 /* MLPageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E5B1B74A61A00A1ACC2 /* MLPageViewController.m */; };
 		36D17E5F1B74A87E00A1ACC2 /* UIViewController+MLKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E5E1B74A87E00A1ACC2 /* UIViewController+MLKit.m */; };
 		36D17E621B74A96800A1ACC2 /* TempViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E611B74A96800A1ACC2 /* TempViewController.m */; };
+		36D17E661B75AAAA00A1ACC2 /* MLContainerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D17E651B75AAAA00A1ACC2 /* MLContainerController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,8 @@
 		36D17E601B74A96800A1ACC2 /* TempViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TempViewController.h; sourceTree = "<group>"; };
 		36D17E611B74A96800A1ACC2 /* TempViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TempViewController.m; sourceTree = "<group>"; };
 		36D17E631B74B4D000A1ACC2 /* MLKitDebug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MLKitDebug.h; sourceTree = "<group>"; };
+		36D17E641B75AAAA00A1ACC2 /* MLContainerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLContainerController.h; sourceTree = "<group>"; };
+		36D17E651B75AAAA00A1ACC2 /* MLContainerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MLContainerController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,6 +150,8 @@
 				36D17E581B7476FD00A1ACC2 /* MLScrollMenuCollectionViewCell.m */,
 				36D17E5A1B74A61A00A1ACC2 /* MLPageViewController.h */,
 				36D17E5B1B74A61A00A1ACC2 /* MLPageViewController.m */,
+				36D17E641B75AAAA00A1ACC2 /* MLContainerController.h */,
+				36D17E651B75AAAA00A1ACC2 /* MLContainerController.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -252,6 +257,7 @@
 			files = (
 				369BE7291B73690B00FDAE27 /* ViewController.m in Sources */,
 				369BE7261B73690B00FDAE27 /* AppDelegate.m in Sources */,
+				36D17E661B75AAAA00A1ACC2 /* MLContainerController.m in Sources */,
 				36D17E5C1B74A61A00A1ACC2 /* MLPageViewController.m in Sources */,
 				36D17E561B746D5900A1ACC2 /* MLScrollMenuView.m in Sources */,
 				36D17E621B74A96800A1ACC2 /* TempViewController.m in Sources */,

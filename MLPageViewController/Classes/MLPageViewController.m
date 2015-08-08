@@ -131,7 +131,7 @@
     if (!self.ignoreSetCurrentIndex) {
         [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0) animated:YES];
     }
-
+//    [self setDidAppearViewControllerWithIndex:currentIndex];
 #warning 。。。
 //    [self setChildViewControllerWithCurrentIndex:index];
 }
@@ -149,17 +149,14 @@
     if (targetIndex<0||targetIndex>self.viewControllers.count-1) {
         return;
     }
-    UIViewController *currentVC = self.viewControllers[scrollCurrentIndex];
-    UIViewController *targetVC = self.viewControllers[targetIndex];
-    
-#warning 有问题
-    [currentVC willMoveToParentViewController:nil];
-    [currentVC.view removeFromSuperview];
-    [currentVC removeFromParentViewController];
-    
-    [self addChildViewController:targetVC];
-    [self.scrollView addSubview:targetVC.view];
-    [targetVC didMoveToParentViewController:self];
+//    UIViewController *currentVC = self.viewControllers[scrollCurrentIndex];
+//    UIViewController *targetVC = self.viewControllers[targetIndex];
+//    
+//#warning 有问题
+////    [currentVC willMoveToParentViewController:nil];
+//
+//    [self addChildViewController:targetVC];
+//    [self.scrollView addSubview:targetVC.view];
     
     [self.scrollMenuView displayForTargetIndex:targetIndex targetIsNext:isToNextItem ratio:fabs(ratio)];
 }
@@ -190,28 +187,10 @@
             [vc didMoveToParentViewController:self];
         }else{
             if ([vc.parentViewController isEqual:self]) {
+                [vc.view removeFromSuperview];
                 [vc removeFromParentViewController];
             }
         }
     }
 }
-
-//- (void)setChildViewControllerWithCurrentIndex:(NSInteger)currentIndex
-//{
-//    for (int i = 0; i < self.childControllers.count; i++) {
-//        id obj = self.childControllers[i];
-//        if ([obj isKindOfClass:[UIViewController class]]) {
-//            UIViewController *controller = (UIViewController*)obj;
-//            if (i == currentIndex) {
-//                [controller willMoveToParentViewController:self];
-//                [self addChildViewController:controller];
-//                [controller didMoveToParentViewController:self];
-//            } else {
-//                [controller willMoveToParentViewController:self];
-//                [controller removeFromParentViewController];
-//                [controller didMoveToParentViewController:self];
-//            }
-//        }
-//    }
-//}
 @end

@@ -178,6 +178,7 @@
     [super layoutSubviews];
     
     self.collectionView.frame = self.bounds;
+    self.minCellWidth = 0.0f;
     [self.collectionView reloadData];
 }
 

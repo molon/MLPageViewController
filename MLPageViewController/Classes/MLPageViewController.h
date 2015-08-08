@@ -6,11 +6,11 @@
 //  Copyright (c) 2015年 molon. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "MLContainerController.h"
 
 #define kDefaultMLScrollMenuViewHeight 35.0f
 @class MLScrollMenuView;
-@interface MLPageViewController : UIViewController
+@interface MLPageViewController : MLContainerController
 
 @property (nonatomic, strong,readonly) MLScrollMenuView *scrollMenuView;
 @property (nonatomic, strong,readonly) UIScrollView *scrollView;
