@@ -84,7 +84,7 @@
 - (MLScrollMenuView *)scrollMenuView
 {
     if (!_scrollMenuView) {
-        _scrollMenuView = [MLScrollMenuView new];
+        _scrollMenuView = [[MLScrollMenuView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kDefaultMLScrollMenuViewHeight)];
         _scrollMenuView.backgroundColor = [UIColor lightGrayColor];
         _scrollMenuView.delegate = self;
     }
@@ -94,7 +94,7 @@
 - (UIScrollView *)scrollView
 {
     if (!_scrollView) {
-        _scrollView = [UIScrollView new];
+        _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, kDefaultMLScrollMenuViewHeight, self.view.frame.size.width, self.view.frame.size.height-kDefaultMLScrollMenuViewHeight)];
         _scrollView.scrollsToTop = NO;
         _scrollView.delegate = self;
         _scrollView.pagingEnabled = YES;

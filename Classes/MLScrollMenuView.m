@@ -189,7 +189,7 @@
             self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
         }];
     }else{
-        [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:YES];
+        [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:NO];
         self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
     }
 }
