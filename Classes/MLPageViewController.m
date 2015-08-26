@@ -193,36 +193,47 @@
         UIViewController *newCurrentVC = self.viewControllers[currentIndex];
         
         [oldCurrentVC willMoveToParentViewController:nil];
-        [oldCurrentVC beginAppearanceTransition:NO animated:NO];
-        [self setLastAppearanceTransition:NO forViewController:oldCurrentVC];
+        
+        if (self.view.window) {
+            [oldCurrentVC beginAppearanceTransition:NO animated:NO];
+            [self setLastAppearanceTransition:NO forViewController:oldCurrentVC];
+        }
         
         [self addChildViewController:newCurrentVC];
         if (![newCurrentVC.view.superview isEqual:self.scrollView]) {
             [newCurrentVC.view removeFromSuperview];
             [self.scrollView addSubview:newCurrentVC.view];
         }
-        [newCurrentVC beginAppearanceTransition:YES animated:NO];
+        if (self.view.window) {
+            [newCurrentVC beginAppearanceTransition:YES animated:NO];
+        }
         
         //不让触发scrollViewDidScroll
         self.scrollView.delegate = nil;
         self.scrollView.contentOffset = CGPointMake(currentIndex * self.scrollView.frame.size.width, 0);
         self.scrollView.delegate = self;
         
-        [newCurrentVC endAppearanceTransition];
-        [newCurrentVC didMoveToParentViewController:self];
+        if (self.view.window) {
+            [newCurrentVC endAppearanceTransition];
+            [newCurrentVC didMoveToParentViewController:self];
+        }
         
         for (UIViewController *vc in self.childViewControllers) {
             if ([vc isEqual:newCurrentVC]) {
                 continue;
             }
             if ([vc.view.superview isEqual:self.scrollView]) {
-                if ([self lastAppearanceTransitionForViewController:vc]) {
-                    [vc beginAppearanceTransition:NO animated:NO];
-                    [self setLastAppearanceTransition:NO forViewController:vc];
+                if (self.view.window) {
+                    if ([self lastAppearanceTransitionForViewController:vc]) {
+                        [vc beginAppearanceTransition:NO animated:NO];
+                        [self setLastAppearanceTransition:NO forViewController:vc];
+                    }
                 }
                 [vc.view removeFromSuperview];
                 [vc removeFromParentViewController];
-                [vc endAppearanceTransition];
+                if (self.view.window) {
+                    [vc endAppearanceTransition];
+                }
             }
         }
     }
