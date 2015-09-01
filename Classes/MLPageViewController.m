@@ -26,6 +26,9 @@
 
 @property (nonatomic, strong) NSMutableDictionary *viewControllerAppearanceTransitionMap;
 
+@property (nonatomic, assign) CGFloat navigationBarBottomOriginY;
+@property (nonatomic, assign) CGFloat tabBarOccupyHeight;
+
 @end
 
 @implementation MLPageViewController
@@ -56,6 +59,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    self.automaticallyAdjustsScrollViewInsets = NO;
     
     [self.view addSubview:self.scrollMenuView];
     [self.view addSubview:self.scrollView];
@@ -78,6 +82,33 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    if (self.autoAdjustTopAndBottomBlank) {
+        CGFloat navigationBarBottomOriginY = 0.0f;
+        CGFloat tabBarOccupyHeight = 0.0f;
+        
+        if (self.navigationController&&!self.navigationController.navigationBar.translucent) {
+            navigationBarBottomOriginY = 0.0f;
+        }else{
+            navigationBarBottomOriginY += [UIApplication sharedApplication].statusBarHidden?0.0f:20.0f;
+            if (self.navigationController) {
+                if (!self.navigationController.navigationBarHidden) {
+                    navigationBarBottomOriginY += self.navigationController.navigationBar.intrinsicContentSize.height;
+                }
+            }
+        }
+        if (self.tabBarController&&self.tabBarController.tabBar.translucent&&!self.hidesBottomBarWhenPushed) {
+            tabBarOccupyHeight += self.tabBarController.tabBar.intrinsicContentSize.height;
+        }
+        
+        self.navigationBarBottomOriginY = navigationBarBottomOriginY;
+        self.tabBarOccupyHeight = tabBarOccupyHeight;
+    }
 }
 
 #pragma mark - getter
@@ -117,7 +148,11 @@
 - (void)setAutoAdjustTopAndBottomBlank:(BOOL)autoAdjustTopAndBottomBlank
 {
     _autoAdjustTopAndBottomBlank = autoAdjustTopAndBottomBlank;
-    [self.view setNeedsLayout];
+    if (!autoAdjustTopAndBottomBlank) {
+        self.navigationBarBottomOriginY = 0.0f;
+        self.tabBarOccupyHeight = 0.0f;
+        [self.view setNeedsLayout];
+    }
 }
 
 #pragma mark - layout
@@ -127,30 +162,10 @@
     
     CGFloat width = self.view.frame.size.width;
     
-    //自动调整上下位置
-    CGFloat navigationBarBottomOriginY = 0.0f;
-    CGFloat tabBarOccupyHeight = 0.0f;
-    
-    if (self.autoAdjustTopAndBottomBlank) {
-        if (self.navigationController&&!self.navigationController.navigationBar.translucent) {
-            navigationBarBottomOriginY = 0.0f;
-        }else{
-            navigationBarBottomOriginY += [UIApplication sharedApplication].statusBarHidden?0.0f:20.0f;
-            if (self.navigationController) {
-                if (!self.navigationController.navigationBarHidden) {
-                    navigationBarBottomOriginY += self.navigationController.navigationBar.intrinsicContentSize.height;
-                }
-            }
-        }
-        if (self.tabBarController&&self.tabBarController.tabBar.translucent&&!self.hidesBottomBarWhenPushed) {
-            tabBarOccupyHeight += self.tabBarController.tabBar.intrinsicContentSize.height;
-        }
-    }
-    
-    CGFloat baseY = navigationBarBottomOriginY;
+    CGFloat baseY = self.navigationBarBottomOriginY;
     self.scrollMenuView.frame = CGRectMake(0, baseY, width, kDefaultMLScrollMenuViewHeight);
     baseY+=kDefaultMLScrollMenuViewHeight;
-    self.scrollView.frame = CGRectMake(0, baseY, width, self.view.frame.size.height-tabBarOccupyHeight-baseY);
+    self.scrollView.frame = CGRectMake(0, baseY, width, self.view.frame.size.height-self.tabBarOccupyHeight-baseY);
     
     //设置其contentSize
     self.scrollView.contentSize = CGSizeMake(width*self.viewControllers.count, self.scrollView.frame.size.height);
