@@ -68,6 +68,8 @@
     for (int i = 0; i < self.viewControllers.count; i++) {
         UIViewController *vc = self.viewControllers[i];
         [vc performSelector:@selector(view) withObject:nil];
+        [vc.view setNeedsLayout];
+        [vc.view layoutIfNeeded];
     }
     
     //直接add第一个,至于其viewWillAppear和didAppear啥的会随着container vc传递下去
