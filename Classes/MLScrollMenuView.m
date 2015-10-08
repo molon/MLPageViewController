@@ -78,7 +78,7 @@
     [self.collectionView setDidReloadDataBlock:^(MLScrollMenuCollectionView *collectionView) {
         __strong __typeof(weakSelf)sSelf = weakSelf;
         
-        if (collectionView.contentSize.width<collectionView.frame.size.width) {
+        if (sSelf.minCellWidth*[sSelf.delegate titleCount]<collectionView.frame.size.width) {
             sSelf.minCellWidth = collectionView.frame.size.width/[sSelf.delegate titleCount];
             //重新布局
             [collectionView reloadData];
