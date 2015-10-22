@@ -184,9 +184,12 @@
     [self updateTitleColorWithCurrentIndex:currentIndex];
     
     if (self.changeCurrentIndexAnimated) {
+        self.collectionView.userInteractionEnabled = NO;
         [UIView animateWithDuration:.25f animations:^{
             [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:YES];
             self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
+        } completion:^(BOOL finished) {
+            self.collectionView.userInteractionEnabled = YES;
         }];
     }else{
         [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:NO];
