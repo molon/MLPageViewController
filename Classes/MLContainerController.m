@@ -134,7 +134,7 @@
  根据对应的所有支持的取向来决定是否需要旋转
  作为容器，支持的取向还决定于自己的相关子ViewControllers
  */
-- (NSUInteger)supportedInterfaceOrientations{
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations{
     NSUInteger supportedInterfaceOrientations = UIInterfaceOrientationMaskAll;
     
     NSArray *viewControllers = [self childViewControllersWithRotationCallbackAutoForward];
