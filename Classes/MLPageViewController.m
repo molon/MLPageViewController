@@ -190,7 +190,7 @@
     return CHILD(UIViewController, self.viewControllers[index]).title;
 }
 
-- (void)didChangedCurrentIndex:(NSInteger)currentIndex scrollMenuView:(MLScrollMenuView*)scrollMenuView
+- (void)didChangedCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)currentIndex scrollMenuView:(MLScrollMenuView *)scrollMenuView
 {
     if (!self.ignoreSetCurrentIndex) {
         //直接点击过来的和手动拖的完全分隔开，不用一回事
