@@ -175,10 +175,22 @@
 {
     NSAssert(currentIndex>=0&&currentIndex<[self.delegate titleCount], @"currentIndex设置越界");
     
+    if (_currentIndex != currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(shouldChangedCurrentIndexFrom:to:scrollMenuView:)]) {
+        if (![self.delegate shouldChangedCurrentIndexFrom:_currentIndex to:currentIndex scrollMenuView:self]) {
+            //激活当前的
+            [self updateTitleColorWithCurrentIndex:_currentIndex];
+            
+            [self.collectionView setContentOffset:[self contentOffsetWidthIndex:_currentIndex] animated:NO];
+            self.indicatorView.frame = [self indicatorFrameWithIndex:_currentIndex];
+            return;
+        }
+    }
+    
+    NSInteger oldIndex = _currentIndex;
     _currentIndex = currentIndex;
     
-    if (self.delegate&&[self.delegate respondsToSelector:@selector(didChangedCurrentIndex:scrollMenuView:)]) {
-        [self.delegate didChangedCurrentIndex:currentIndex scrollMenuView:self];
+    if (oldIndex!=_currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(didChangedCurrentIndexFrom:to:scrollMenuView:)]) {
+        [self.delegate didChangedCurrentIndexFrom:oldIndex to:currentIndex scrollMenuView:self];
     }
     
     [self updateTitleColorWithCurrentIndex:currentIndex];
