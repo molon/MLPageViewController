@@ -168,6 +168,8 @@
     self.scrollMenuView.frame = CGRectMake(0, baseY, width, kDefaultMLScrollMenuViewHeight);
     baseY+=kDefaultMLScrollMenuViewHeight;
     self.scrollView.frame = CGRectMake(0, baseY, width, self.view.frame.size.height-self.tabBarOccupyHeight-baseY);
+    //这里contentOffset可能会被重置到0，0，所以需要修正一下
+    self.scrollView.contentOffset = CGPointMake(self.scrollMenuView.currentIndex*self.scrollView.frame.size.width,0);
     
     //设置其contentSize
     self.scrollView.contentSize = CGSizeMake(width*self.viewControllers.count, self.scrollView.frame.size.height);
@@ -195,9 +197,6 @@
     if (!self.ignoreSetCurrentIndex) {
         //直接点击过来的和手动拖的完全分隔开，不用一回事
         NSInteger oldCurrentIndex = floor(self.scrollView.contentOffset.x / self.scrollView.frame.size.width);
-        if (oldCurrentIndex==currentIndex) {
-            return;
-        }
         
         if (!self.dontScrollWhenDirectClickMenu) {
             self.dontChangeDisplayMenuView = YES;
