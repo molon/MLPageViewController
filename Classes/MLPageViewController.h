@@ -8,7 +8,7 @@
 
 #import "MLContainerController.h"
 
-#define kDefaultMLScrollMenuViewHeight 35.0f
+#define kDefaultMLScrollMenuViewHeight 40.0f
 @class MLScrollMenuView;
 @interface MLPageViewController : MLContainerController
 
