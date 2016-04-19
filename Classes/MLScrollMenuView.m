@@ -31,6 +31,7 @@
 @interface MLScrollMenuView()<UICollectionViewDataSource,UICollectionViewDelegate>
 
 @property (nonatomic, strong) MLScrollMenuCollectionView *collectionView;
+@property (nonatomic, strong) UIView *indicatorBackgroundView;
 @property (nonatomic, strong) UIView *indicatorView;
 @property (nonatomic, assign) NSInteger currentIndex;
 
@@ -70,6 +71,7 @@
     _titleColor = [UIColor blackColor];
     _currentTitleColor = [UIColor redColor];
     _indicatorColor = [UIColor colorWithRed:0.996 green:0.827 blue:0.216 alpha:1.000];
+    _indicatorBackgroundColor = [UIColor clearColor];
     
     [self addSubview:self.backgroundImageView];
     
@@ -89,6 +91,7 @@
         [sSelf setCurrentIndex:sSelf.currentIndex animated:NO];
     }];
     
+    [self.collectionView addSubview:self.indicatorBackgroundView];
     [self.collectionView addSubview:self.indicatorView];
 }
 
@@ -123,6 +126,15 @@
         _indicatorView.backgroundColor = self.indicatorColor;
     }
     return _indicatorView;
+}
+
+- (UIView *)indicatorBackgroundView
+{
+    if (!_indicatorBackgroundView) {
+        _indicatorBackgroundView = [UIView new];
+        _indicatorBackgroundView.backgroundColor = self.indicatorBackgroundColor;
+    }
+    return _indicatorBackgroundView;
 }
 
 - (UIImageView *)backgroundImageView
@@ -170,6 +182,11 @@
     self.indicatorView.backgroundColor = indicatorColor;
 }
 
+- (void)setIndicatorBackgroundColor:(UIColor *)indicatorBackgroundColor
+{
+    _indicatorBackgroundColor = indicatorBackgroundColor;
+    self.indicatorBackgroundView.backgroundColor = indicatorBackgroundColor;
+}
 
 - (void)setCurrentIndex:(NSInteger)currentIndex
 {
@@ -223,6 +240,8 @@
     [super layoutSubviews];
     
     self.backgroundImageView.frame = self.bounds;
+    self.indicatorBackgroundView.frame = CGRectMake(0, self.frame.size.height-kMLScrollMenuViewIndicatorViewHeight, self.frame.size.width, kMLScrollMenuViewIndicatorViewHeight);
+    
     self.collectionView.frame = self.bounds;
     self.minCellWidth = 0.0f;
     [self.collectionView reloadData];

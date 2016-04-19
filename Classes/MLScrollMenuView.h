@@ -34,6 +34,7 @@
 @property (nonatomic, strong) UIColor *titleColor;
 @property (nonatomic, strong) UIColor *currentTitleColor;
 @property (nonatomic, strong) UIColor *indicatorColor;
+@property (nonatomic, strong) UIColor *indicatorBackgroundColor;
 
 @property (nonatomic, strong, readonly) UIImageView *backgroundImageView;
 
