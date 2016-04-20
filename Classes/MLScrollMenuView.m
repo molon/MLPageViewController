@@ -74,6 +74,7 @@
     _indicatorBackgroundColor = [UIColor clearColor];
     
     [self addSubview:self.backgroundImageView];
+    [self addSubview:self.indicatorBackgroundView];
     
     [self addSubview:self.collectionView];
     __weak __typeof(self)weakSelf = self;
@@ -91,7 +92,6 @@
         [sSelf setCurrentIndex:sSelf.currentIndex animated:NO];
     }];
     
-    [self.collectionView addSubview:self.indicatorBackgroundView];
     [self.collectionView addSubview:self.indicatorView];
 }
 
