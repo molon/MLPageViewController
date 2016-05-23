@@ -192,8 +192,8 @@
 {
     NSAssert(currentIndex>=0&&currentIndex<[self.delegate titleCount], @"currentIndex设置越界");
     
-    if (_currentIndex != currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(shouldChangedCurrentIndexFrom:to:scrollMenuView:)]) {
-        if (![self.delegate shouldChangedCurrentIndexFrom:_currentIndex to:currentIndex scrollMenuView:self]) {
+    if (_currentIndex != currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(shouldChangeCurrentIndexFrom:to:scrollMenuView:)]) {
+        if (![self.delegate shouldChangeCurrentIndexFrom:_currentIndex to:currentIndex scrollMenuView:self]) {
             //激活当前的
             [self updateTitleColorWithCurrentIndex:_currentIndex];
             
@@ -206,8 +206,8 @@
     NSInteger oldIndex = _currentIndex;
     _currentIndex = currentIndex;
     
-    if (oldIndex!=_currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(didChangedCurrentIndexFrom:to:scrollMenuView:)]) {
-        [self.delegate didChangedCurrentIndexFrom:oldIndex to:currentIndex scrollMenuView:self];
+    if (oldIndex!=_currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(didChangeCurrentIndexFrom:to:animated:scrollMenuView:)]) {
+        [self.delegate didChangeCurrentIndexFrom:oldIndex to:currentIndex animated:self.changeCurrentIndexAnimated scrollMenuView:self];
     }
     
     [self updateTitleColorWithCurrentIndex:currentIndex];
@@ -228,7 +228,7 @@
 
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated
 {
-    //不直接用动画block包括进来是怕didChangedCurrentIndex里有对其他view进行调整的同时也被动画了
+    //不直接用动画block包括进来是怕didChangeCurrentIndex里有对其他view进行调整的同时也被动画了
     self.changeCurrentIndexAnimated = animated;
     self.currentIndex = currentIndex;
     self.changeCurrentIndexAnimated = NO;

@@ -7,8 +7,9 @@
 //
 
 #import "AppDelegate.h"
-#import "MLPageViewController.h"
 #import "TempViewController.h"
+#import "TempPageViewController.h"
+
 @interface AppDelegate ()
 
 @end
@@ -29,7 +30,12 @@
     }
     
     
-    MLPageViewController *pageViewController = [[MLPageViewController alloc]initWithViewControllers:array];
+    TempPageViewController *pageViewController = [[TempPageViewController alloc]initWithViewControllers:array];
+    pageViewController.dontScrollWhenDirectClickMenu = YES;
+    [pageViewController setDidChangeCurrentIndexBlock:^(NSInteger currentIndex, MLPageViewController *vc) {
+        NSLog(@"change currentindex to:%ld ",currentIndex);
+    }];
+    
     self.window.rootViewController = [[UINavigationController alloc]initWithRootViewController:pageViewController];
     
     [self.window makeKeyAndVisible];
