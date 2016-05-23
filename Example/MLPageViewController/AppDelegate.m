@@ -31,7 +31,6 @@
     
     
     TempPageViewController *pageViewController = [[TempPageViewController alloc]initWithViewControllers:array];
-    pageViewController.dontScrollWhenDirectClickMenu = YES;
     [pageViewController setDidChangeCurrentIndexBlock:^(NSInteger currentIndex, MLPageViewController *vc) {
         NSLog(@"change currentindex to:%ld ",currentIndex);
     }];
