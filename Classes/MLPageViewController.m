@@ -136,6 +136,19 @@
     return _scrollView;
 }
 
+- (NSInteger)currentIndex
+{
+    return self.scrollMenuView.currentIndex;
+}
+
+- (UIViewController*)currentViewController
+{
+    if (self.scrollMenuView.currentIndex>=0&&self.scrollMenuView.currentIndex<self.viewControllers.count) {
+        return self.viewControllers[self.scrollMenuView.currentIndex];
+    }
+    return nil;
+}
+
 #pragma mark - setter
 - (void)setViewControllers:(NSArray *)viewControllers
 {
@@ -168,6 +181,8 @@
     self.scrollMenuView.frame = CGRectMake(0, baseY, width, kDefaultMLScrollMenuViewHeight);
     baseY+=kDefaultMLScrollMenuViewHeight;
     self.scrollView.frame = CGRectMake(0, baseY, width, self.view.frame.size.height-self.tabBarOccupyHeight-baseY);
+    //这里contentOffset可能会被重置到0，0，所以需要修正一下
+    self.scrollView.contentOffset = CGPointMake(self.scrollMenuView.currentIndex*self.scrollView.frame.size.width,0);
     
     //设置其contentSize
     self.scrollView.contentSize = CGSizeMake(width*self.viewControllers.count, self.scrollView.frame.size.height);
@@ -190,16 +205,13 @@
     return CHILD(UIViewController, self.viewControllers[index]).title;
 }
 
-- (void)didChangedCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)currentIndex scrollMenuView:(MLScrollMenuView *)scrollMenuView
+- (void)didChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)currentIndex animated:(BOOL)animated scrollMenuView:(MLScrollMenuView *)scrollMenuView
 {
     if (!self.ignoreSetCurrentIndex) {
         //直接点击过来的和手动拖的完全分隔开，不用一回事
         NSInteger oldCurrentIndex = floor(self.scrollView.contentOffset.x / self.scrollView.frame.size.width);
-        if (oldCurrentIndex==currentIndex) {
-            return;
-        }
         
-        if (!self.dontScrollWhenDirectClickMenu) {
+        if (!self.dontScrollWhenDirectClickMenu&&animated) {
             self.dontChangeDisplayMenuView = YES;
             [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0) animated:YES];
             return;
@@ -252,6 +264,10 @@
                     [vc endAppearanceTransition];
                 }
             }
+        }
+        
+        if (self.didChangeCurrentIndexBlock) {
+            self.didChangeCurrentIndexBlock(currentIndex,self);
         }
     }
 }
@@ -350,6 +366,10 @@
                 [vc endAppearanceTransition];
             }
         }
+        
+        if (self.didChangeCurrentIndexBlock) {
+            self.didChangeCurrentIndexBlock(currentIndex,self);
+        }
     }
 }
 
@@ -382,5 +402,11 @@
 {
     NSString *pointerString = [NSString stringWithFormat:@"%p",vc];
     self.viewControllerAppearanceTransitionMap[pointerString] = @(appearanceTransition);
+}
+
+#pragma mark - outcall
+- (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated
+{
+    [self.scrollMenuView setCurrentIndex:currentIndex animated:animated];
 }
 @end

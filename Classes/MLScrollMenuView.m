@@ -31,6 +31,7 @@
 @interface MLScrollMenuView()<UICollectionViewDataSource,UICollectionViewDelegate>
 
 @property (nonatomic, strong) MLScrollMenuCollectionView *collectionView;
+@property (nonatomic, strong) UIView *indicatorBackgroundView;
 @property (nonatomic, strong) UIView *indicatorView;
 @property (nonatomic, assign) NSInteger currentIndex;
 
@@ -70,8 +71,10 @@
     _titleColor = [UIColor blackColor];
     _currentTitleColor = [UIColor redColor];
     _indicatorColor = [UIColor colorWithRed:0.996 green:0.827 blue:0.216 alpha:1.000];
+    _indicatorBackgroundColor = [UIColor clearColor];
     
     [self addSubview:self.backgroundImageView];
+    [self addSubview:self.indicatorBackgroundView];
     
     [self addSubview:self.collectionView];
     __weak __typeof(self)weakSelf = self;
@@ -125,6 +128,15 @@
     return _indicatorView;
 }
 
+- (UIView *)indicatorBackgroundView
+{
+    if (!_indicatorBackgroundView) {
+        _indicatorBackgroundView = [UIView new];
+        _indicatorBackgroundView.backgroundColor = self.indicatorBackgroundColor;
+    }
+    return _indicatorBackgroundView;
+}
+
 - (UIImageView *)backgroundImageView
 {
     if (!_backgroundImageView) {
@@ -170,13 +182,18 @@
     self.indicatorView.backgroundColor = indicatorColor;
 }
 
+- (void)setIndicatorBackgroundColor:(UIColor *)indicatorBackgroundColor
+{
+    _indicatorBackgroundColor = indicatorBackgroundColor;
+    self.indicatorBackgroundView.backgroundColor = indicatorBackgroundColor;
+}
 
 - (void)setCurrentIndex:(NSInteger)currentIndex
 {
     NSAssert(currentIndex>=0&&currentIndex<[self.delegate titleCount], @"currentIndex设置越界");
     
-    if (_currentIndex != currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(shouldChangedCurrentIndexFrom:to:scrollMenuView:)]) {
-        if (![self.delegate shouldChangedCurrentIndexFrom:_currentIndex to:currentIndex scrollMenuView:self]) {
+    if (_currentIndex != currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(shouldChangeCurrentIndexFrom:to:scrollMenuView:)]) {
+        if (![self.delegate shouldChangeCurrentIndexFrom:_currentIndex to:currentIndex scrollMenuView:self]) {
             //激活当前的
             [self updateTitleColorWithCurrentIndex:_currentIndex];
             
@@ -189,8 +206,8 @@
     NSInteger oldIndex = _currentIndex;
     _currentIndex = currentIndex;
     
-    if (oldIndex!=_currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(didChangedCurrentIndexFrom:to:scrollMenuView:)]) {
-        [self.delegate didChangedCurrentIndexFrom:oldIndex to:currentIndex scrollMenuView:self];
+    if (oldIndex!=_currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(didChangeCurrentIndexFrom:to:animated:scrollMenuView:)]) {
+        [self.delegate didChangeCurrentIndexFrom:oldIndex to:currentIndex animated:self.changeCurrentIndexAnimated scrollMenuView:self];
     }
     
     [self updateTitleColorWithCurrentIndex:currentIndex];
@@ -211,7 +228,7 @@
 
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated
 {
-    //不直接用动画block包括进来是怕didChangedCurrentIndex里有对其他view进行调整的同时也被动画了
+    //不直接用动画block包括进来是怕didChangeCurrentIndex里有对其他view进行调整的同时也被动画了
     self.changeCurrentIndexAnimated = animated;
     self.currentIndex = currentIndex;
     self.changeCurrentIndexAnimated = NO;
@@ -223,6 +240,8 @@
     [super layoutSubviews];
     
     self.backgroundImageView.frame = self.bounds;
+    self.indicatorBackgroundView.frame = CGRectMake(0, self.frame.size.height-kMLScrollMenuViewIndicatorViewHeight, self.frame.size.width, kMLScrollMenuViewIndicatorViewHeight);
+    
     self.collectionView.frame = self.bounds;
     self.minCellWidth = 0.0f;
     [self.collectionView reloadData];

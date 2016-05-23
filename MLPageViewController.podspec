@@ -15,7 +15,6 @@ s.source       = {
 s.platform     = :ios, '7.0'
 s.public_header_files = 'Classes/**/*.h'
 s.source_files  = 'Classes/**/*.{h,m}'
-s.resource = "Classes/**/*.bundle"
 s.requires_arc  = true
 
 end
