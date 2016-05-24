@@ -243,6 +243,7 @@
         
         if (!self.dontScrollWhenDirectClickMenu&&animated&&self.view.window) {
             self.dontChangeDisplayMenuView = YES;
+            self.scrollView.userInteractionEnabled = NO;
             [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0) animated:YES];
             return;
         }
@@ -373,6 +374,10 @@
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    if (!self.scrollView.userInteractionEnabled) {
+        self.scrollView.userInteractionEnabled = YES;
+    }
+    
     NSInteger currentIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
     if (currentIndex<0||currentIndex>self.viewControllers.count-1) {
         return;
