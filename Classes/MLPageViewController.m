@@ -13,10 +13,40 @@
 ((childClass *)object) \
 \
 
+@interface MLPageScrollView : UIScrollView
+
+@end
+
+@implementation MLPageScrollView
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    if ([gestureRecognizer isEqual:self.panGestureRecognizer]) {
+        if (![otherGestureRecognizer.view isEqual:self]&&[otherGestureRecognizer.view isKindOfClass:[UIScrollView class]]) {
+            //如果另外的scrollView是当前scrollView的子级
+            if ([otherGestureRecognizer.view isDescendantOfView:self]) {
+                UIScrollView *scrollView = (UIScrollView*)otherGestureRecognizer.view;
+                //判断scrollView是否横向滚动的
+                if (CGAffineTransformEqualToTransform(CGAffineTransformMakeRotation(-M_PI*0.5),scrollView.transform)||CGAffineTransformEqualToTransform(CGAffineTransformMakeRotation(M_PI*0.5),scrollView.transform)) {
+                    return YES;
+                }
+                
+                if (scrollView.contentSize.width>scrollView.frame.size.width) {
+                    return YES;
+                }
+            }
+        }
+    }
+    return NO;
+}
+
+
+@end
+
 @interface MLPageViewController ()<MLScrollMenuViewDelegate,UIScrollViewDelegate>
 
 @property (nonatomic, strong) MLScrollMenuView *scrollMenuView;
-@property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, strong) MLPageScrollView *scrollView;
 @property (nonatomic, assign) CGFloat lastContentOffsetX;
 
 @property (nonatomic, strong) NSArray *viewControllers;
@@ -123,14 +153,15 @@
     return _scrollMenuView;
 }
 
-- (UIScrollView *)scrollView
+- (MLPageScrollView *)scrollView
 {
     if (!_scrollView) {
-        _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, kDefaultMLScrollMenuViewHeight, self.view.frame.size.width, self.view.frame.size.height-kDefaultMLScrollMenuViewHeight)];
+        _scrollView = [[MLPageScrollView alloc]initWithFrame:CGRectMake(0, kDefaultMLScrollMenuViewHeight, self.view.frame.size.width, self.view.frame.size.height-kDefaultMLScrollMenuViewHeight)];
         _scrollView.scrollsToTop = NO;
         _scrollView.delegate = self;
         _scrollView.pagingEnabled = YES;
         _scrollView.showsHorizontalScrollIndicator = NO;
+        _scrollView.directionalLockEnabled = YES;
     }
     return _scrollView;
 }
