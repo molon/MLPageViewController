@@ -13,10 +13,40 @@
 ((childClass *)object) \
 \
 
+@interface MLPageScrollView : UIScrollView
+
+@end
+
+@implementation MLPageScrollView
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    if ([gestureRecognizer isEqual:self.panGestureRecognizer]) {
+        if (![otherGestureRecognizer.view isEqual:self]&&[otherGestureRecognizer.view isKindOfClass:[UIScrollView class]]) {
+            //如果另外的scrollView是当前scrollView的子级
+            if ([otherGestureRecognizer.view isDescendantOfView:self]) {
+                UIScrollView *scrollView = (UIScrollView*)otherGestureRecognizer.view;
+                //判断scrollView是否横向滚动的
+                if (CGAffineTransformEqualToTransform(CGAffineTransformMakeRotation(-M_PI*0.5),scrollView.transform)||CGAffineTransformEqualToTransform(CGAffineTransformMakeRotation(M_PI*0.5),scrollView.transform)) {
+                    return YES;
+                }
+                
+                if (scrollView.contentSize.width>scrollView.frame.size.width) {
+                    return YES;
+                }
+            }
+        }
+    }
+    return NO;
+}
+
+
+@end
+
 @interface MLPageViewController ()<MLScrollMenuViewDelegate,UIScrollViewDelegate>
 
 @property (nonatomic, strong) MLScrollMenuView *scrollMenuView;
-@property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, strong) MLPageScrollView *scrollView;
 @property (nonatomic, assign) CGFloat lastContentOffsetX;
 
 @property (nonatomic, strong) NSArray *viewControllers;
@@ -118,20 +148,20 @@
 {
     if (!_scrollMenuView) {
         _scrollMenuView = [[MLScrollMenuView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kDefaultMLScrollMenuViewHeight)];
-        _scrollMenuView.backgroundColor = [UIColor lightGrayColor];
         _scrollMenuView.delegate = self;
     }
     return _scrollMenuView;
 }
 
-- (UIScrollView *)scrollView
+- (MLPageScrollView *)scrollView
 {
     if (!_scrollView) {
-        _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, kDefaultMLScrollMenuViewHeight, self.view.frame.size.width, self.view.frame.size.height-kDefaultMLScrollMenuViewHeight)];
+        _scrollView = [[MLPageScrollView alloc]initWithFrame:CGRectMake(0, kDefaultMLScrollMenuViewHeight, self.view.frame.size.width, self.view.frame.size.height-kDefaultMLScrollMenuViewHeight)];
         _scrollView.scrollsToTop = NO;
         _scrollView.delegate = self;
         _scrollView.pagingEnabled = YES;
         _scrollView.showsHorizontalScrollIndicator = NO;
+        _scrollView.directionalLockEnabled = YES;
     }
     return _scrollView;
 }
@@ -211,8 +241,9 @@
         //直接点击过来的和手动拖的完全分隔开，不用一回事
         NSInteger oldCurrentIndex = floor(self.scrollView.contentOffset.x / self.scrollView.frame.size.width);
         
-        if (!self.dontScrollWhenDirectClickMenu&&animated) {
+        if (!self.dontScrollWhenDirectClickMenu&&animated&&self.view.window) {
             self.dontChangeDisplayMenuView = YES;
+            self.scrollView.userInteractionEnabled = NO;
             [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0) animated:YES];
             return;
         }
@@ -244,8 +275,8 @@
         
         if (self.view.window) {
             [newCurrentVC endAppearanceTransition];
-            [newCurrentVC didMoveToParentViewController:self];
         }
+        [newCurrentVC didMoveToParentViewController:self];
         
         for (UIViewController *vc in self.childViewControllers) {
             if ([vc isEqual:newCurrentVC]) {
@@ -272,6 +303,11 @@
     }
 }
 
+- (BOOL)shouldChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)toIndex scrollMenuView:(MLScrollMenuView*)scrollMenuView
+{
+    return !(self.scrollView.dragging);
+}
+
 #pragma mark - scrollView delegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
@@ -290,11 +326,15 @@
         [self.scrollMenuView displayFromIndex:leftIndex toIndex:rightIndex ratio:fabs(leftToRightRatio)];
     }
     
-    //处理view appear
+    //如果为0说明实际上已经处于绝对的某页面了，这时候就不应该去处理vc will appear or disappear 状态了。而应该交给scrollViewDidEndDecelerating去处理did appear和dod disappear
+    
+    //TODO: 但是如果在某种异常情况下，leftToRightRatio直接就到了目标位置，而没有中间contentOffset变化的过程的话，就会产生目标VC没有被add的情况，
+    //scrollViewDidEndDecelerating也会啥都没做了。但是这种情况基本不可能遇到的
     if (leftToRightRatio==0.0f) {
         return;
     }
     
+    //处理view appear
     NSInteger targetIndex = isScrollToRight?rightIndex:leftIndex;
     NSInteger currentIndex = isScrollToRight?leftIndex:rightIndex;
     
@@ -311,8 +351,17 @@
             if ([vc.view.superview isEqual:self.scrollView]) {
                 [vc.view removeFromSuperview];
                 [vc removeFromParentViewController];
-                [vc endAppearanceTransition];
+                if (self.view.window) {
+                    [vc endAppearanceTransition];
+                }
             }
+        }
+        
+        //将要remove
+        [currentVC willMoveToParentViewController:nil];
+        if (self.view.window) {
+            [currentVC beginAppearanceTransition:NO animated:YES];
+            [self setLastAppearanceTransition:NO forViewController:currentVC];
         }
         
         //将要add
@@ -321,18 +370,22 @@
             [targetVC.view removeFromSuperview];
             [self.scrollView addSubview:targetVC.view];
         }
-        [targetVC beginAppearanceTransition:YES animated:YES];
-        [self setLastAppearanceTransition:YES forViewController:targetVC];
-        
-        //将要remove
-        [currentVC willMoveToParentViewController:nil];
-        [currentVC beginAppearanceTransition:NO animated:YES];
-        [self setLastAppearanceTransition:NO forViewController:currentVC];
+        if (self.view.window) {
+            [targetVC beginAppearanceTransition:YES animated:YES];
+            [self setLastAppearanceTransition:YES forViewController:targetVC];
+        }
     }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    if (!self.scrollView.userInteractionEnabled) {
+        self.scrollView.userInteractionEnabled = YES;
+    }
+    if (!self.scrollMenuView.userInteractionEnabled) {
+        self.scrollMenuView.userInteractionEnabled = YES;
+    }
+    
     NSInteger currentIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
     if (currentIndex<0||currentIndex>self.viewControllers.count-1) {
         return;
@@ -342,14 +395,20 @@
     [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
     self.ignoreSetCurrentIndex = NO;
     
-    if (self.childViewControllers.count>1) { //这个是用于边界无效拖动时候过滤
+    if (self.childViewControllers.count>1) { //这个是判断当前是否在边界往无VC的方向做无效拖动的时候
         UIViewController *currentVC = self.viewControllers[currentIndex];
-        if (![self lastAppearanceTransitionForViewController:currentVC]) {
-            [currentVC beginAppearanceTransition:YES animated:YES];
-            [self setLastAppearanceTransition:YES forViewController:currentVC];
+        
+        if (self.view.window) {
+            if (![self lastAppearanceTransitionForViewController:currentVC]) {
+                [currentVC beginAppearanceTransition:YES animated:YES];
+                [self setLastAppearanceTransition:YES forViewController:currentVC];
+            }
         }
         
-        [currentVC endAppearanceTransition];
+        if (self.view.window) {
+            [currentVC endAppearanceTransition];
+        }
+        
         [currentVC didMoveToParentViewController:self];
         
         for (UIViewController *vc in self.childViewControllers) {
@@ -357,13 +416,20 @@
                 continue;
             }
             if ([vc.view.superview isEqual:self.scrollView]) {
-                if ([self lastAppearanceTransitionForViewController:vc]) {
-                    [vc beginAppearanceTransition:NO animated:YES];
-                    [self setLastAppearanceTransition:NO forViewController:vc];
+                
+                if (self.view.window) {
+                    if ([self lastAppearanceTransitionForViewController:vc]) {
+                        [vc beginAppearanceTransition:NO animated:YES];
+                        [self setLastAppearanceTransition:NO forViewController:vc];
+                    }
                 }
+                
                 [vc.view removeFromSuperview];
                 [vc removeFromParentViewController];
-                [vc endAppearanceTransition];
+                
+                if (self.view.window) {
+                    [vc endAppearanceTransition];
+                }
             }
         }
         
@@ -376,6 +442,7 @@
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     self.dontChangeDisplayMenuView = NO;
+    self.scrollMenuView.userInteractionEnabled = NO;
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
@@ -407,6 +474,10 @@
 #pragma mark - outcall
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated
 {
+    //没显示出来时候压根不需要animated
+    if (!self.view.window) {
+        animated = NO;
+    }
     [self.scrollMenuView setCurrentIndex:currentIndex animated:animated];
 }
 @end
