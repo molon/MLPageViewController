@@ -23,7 +23,7 @@
 
 #define kMLScrollMenuViewCollectionViewCellXPadding 10.0f
 #define kMLScrollMenuViewIndicatorViewHeight 2.0f
-#define kMLScrollMenuViewIndicatorViewXPadding 5.0f
+#define kDefaultMLScrollMenuViewIndicatorViewXPadding 5.0f
 @interface MLScrollMenuView : UIView
 
 @property (nonatomic, assign, readonly) NSInteger currentIndex;
@@ -32,9 +32,10 @@
 @property (nonatomic, strong) UIFont *titleFont;
 @property (nonatomic, strong) UIColor *titleColor;
 @property (nonatomic, strong) UIColor *currentTitleColor;
-@property (nonatomic, strong) UIColor *indicatorColor;
+@property (nonatomic, strong) UIColor *currentIndicatorColor;
 @property (nonatomic, strong) UIColor *indicatorBackgroundColor;
 @property (nonatomic, strong, readonly) UIImageView *backgroundImageView;
+@property (nonatomic, assign) CGFloat currentIndicatorViewXPadding;//默认为5.0f，代表指示器的左右内边距(即为比文本长度多那么一点的那些距离)
 
 /**
  *  滚动菜单的delegate，注意在使用MLPageViewController时候即为MLPageViewController不可修改。

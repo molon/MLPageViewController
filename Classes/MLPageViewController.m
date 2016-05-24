@@ -118,7 +118,6 @@
 {
     if (!_scrollMenuView) {
         _scrollMenuView = [[MLScrollMenuView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kDefaultMLScrollMenuViewHeight)];
-        _scrollMenuView.backgroundColor = [UIColor lightGrayColor];
         _scrollMenuView.delegate = self;
     }
     return _scrollMenuView;

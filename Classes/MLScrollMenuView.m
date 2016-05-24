@@ -67,11 +67,12 @@
 - (void)setUp
 {
     self.exclusiveTouch = YES;
-    _titleFont = [UIFont boldSystemFontOfSize:14.0f];
+    _titleFont = [UIFont systemFontOfSize:14.0f];
     _titleColor = [UIColor blackColor];
     _currentTitleColor = [UIColor redColor];
-    _indicatorColor = [UIColor colorWithRed:0.996 green:0.827 blue:0.216 alpha:1.000];
+    _currentIndicatorColor = [UIColor colorWithRed:0.996 green:0.827 blue:0.216 alpha:1.000];
     _indicatorBackgroundColor = [UIColor clearColor];
+    _currentIndicatorViewXPadding = kDefaultMLScrollMenuViewIndicatorViewXPadding;
     
     [self addSubview:self.backgroundImageView];
     [self addSubview:self.indicatorBackgroundView];
@@ -123,7 +124,7 @@
 {
     if (!_indicatorView) {
         _indicatorView = [UIView new];
-        _indicatorView.backgroundColor = self.indicatorColor;
+        _indicatorView.backgroundColor = self.currentIndicatorColor;
     }
     return _indicatorView;
 }
@@ -176,9 +177,9 @@
     [self reloadData];
 }
 
-- (void)setIndicatorColor:(UIColor *)indicatorColor
+- (void)setCurrentIndicatorColor:(UIColor *)indicatorColor
 {
-    _indicatorColor = indicatorColor;
+    _currentIndicatorColor = indicatorColor;
     self.indicatorView.backgroundColor = indicatorColor;
 }
 
@@ -319,7 +320,7 @@
     //找到title对应的宽度
     NSString *title = [self.delegate titleForIndex:index];
     CGSize size = [self singleSizeWithFont:self.titleFont string:title];
-    size.width += kMLScrollMenuViewIndicatorViewXPadding*2;
+    size.width += _currentIndicatorViewXPadding*2;
     
     return CGRectMake(attributes.frame.origin.x+(attributes.frame.size.width-size.width)/2, attributes.frame.size.height, size.width, kMLScrollMenuViewIndicatorViewHeight);
 }
