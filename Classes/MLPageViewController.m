@@ -303,6 +303,11 @@
     }
 }
 
+- (BOOL)shouldChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)toIndex scrollMenuView:(MLScrollMenuView*)scrollMenuView
+{
+    return !(self.scrollView.dragging);
+}
+
 #pragma mark - scrollView delegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
@@ -377,6 +382,9 @@
     if (!self.scrollView.userInteractionEnabled) {
         self.scrollView.userInteractionEnabled = YES;
     }
+    if (!self.scrollMenuView.userInteractionEnabled) {
+        self.scrollMenuView.userInteractionEnabled = YES;
+    }
     
     NSInteger currentIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
     if (currentIndex<0||currentIndex>self.viewControllers.count-1) {
@@ -434,6 +442,7 @@
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     self.dontChangeDisplayMenuView = NO;
+    self.scrollMenuView.userInteractionEnabled = NO;
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate

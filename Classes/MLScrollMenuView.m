@@ -195,11 +195,6 @@
     
     if (_currentIndex != currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(shouldChangeCurrentIndexFrom:to:scrollMenuView:)]) {
         if (![self.delegate shouldChangeCurrentIndexFrom:_currentIndex to:currentIndex scrollMenuView:self]) {
-            //激活当前的
-            [self updateTitleColorWithCurrentIndex:_currentIndex];
-            
-            [self.collectionView setContentOffset:[self contentOffsetWidthIndex:_currentIndex] animated:NO];
-            self.indicatorView.frame = [self indicatorFrameWithIndex:_currentIndex];
             return;
         }
     }
