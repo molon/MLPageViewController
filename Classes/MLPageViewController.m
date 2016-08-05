@@ -47,21 +47,18 @@
 
 @property (nonatomic, strong) MLScrollMenuView *scrollMenuView;
 @property (nonatomic, strong) MLPageScrollView *scrollView;
-@property (nonatomic, assign) CGFloat lastContentOffsetX;
-
 @property (nonatomic, strong) NSArray *viewControllers;
-
-@property (nonatomic, assign) BOOL ignoreSetCurrentIndex;
-@property (nonatomic, assign) BOOL dontChangeDisplayMenuView;
-
-@property (nonatomic, strong) NSMutableDictionary *viewControllerAppearanceTransitionMap;
-
-@property (nonatomic, assign) CGFloat navigationBarBottomOriginY;
-@property (nonatomic, assign) CGFloat tabBarOccupyHeight;
 
 @end
 
 @implementation MLPageViewController
+{
+    NSInteger _lastCurrentIndex;
+    CGFloat _lastContentOffsetX;
+    BOOL _ignoreSetCurrentIndex;
+    BOOL _dontChangeDisplayMenuView;
+    NSMutableDictionary *_viewControllerAppearanceTransitionMap;
+}
 
 - (instancetype)initWithViewControllers:(NSArray *)viewControllers
 {
@@ -84,6 +81,7 @@
 - (void)setUp
 {
     _autoAdjustTopAndBottomBlank = YES;
+    _lastCurrentIndex = -1;
 }
 
 - (void)viewDidLoad {
@@ -114,33 +112,6 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    
-    if (self.autoAdjustTopAndBottomBlank) {
-        CGFloat navigationBarBottomOriginY = 0.0f;
-        CGFloat tabBarOccupyHeight = 0.0f;
-        
-        if (self.navigationController&&!self.navigationController.navigationBar.translucent) {
-            navigationBarBottomOriginY = 0.0f;
-        }else{
-            navigationBarBottomOriginY += [UIApplication sharedApplication].statusBarHidden?0.0f:20.0f;
-            if (self.navigationController) {
-                if (!self.navigationController.navigationBarHidden) {
-                    navigationBarBottomOriginY += self.navigationController.navigationBar.intrinsicContentSize.height;
-                }
-            }
-        }
-        if (self.tabBarController&&self.tabBarController.tabBar.translucent&&!self.hidesBottomBarWhenPushed) {
-            tabBarOccupyHeight += self.tabBarController.tabBar.intrinsicContentSize.height;
-        }
-        
-        self.navigationBarBottomOriginY = navigationBarBottomOriginY;
-        self.tabBarOccupyHeight = tabBarOccupyHeight;
-    }
 }
 
 #pragma mark - getter
@@ -184,7 +155,7 @@
 {
     _viewControllers = viewControllers;
     
-    self.viewControllerAppearanceTransitionMap = [NSMutableDictionary dictionaryWithCapacity:viewControllers.count];
+    _viewControllerAppearanceTransitionMap = [NSMutableDictionary dictionaryWithCapacity:viewControllers.count];
     for (UIViewController *vc in viewControllers) {
         [self setLastAppearanceTransition:NO forViewController:vc];
     }
@@ -193,11 +164,8 @@
 - (void)setAutoAdjustTopAndBottomBlank:(BOOL)autoAdjustTopAndBottomBlank
 {
     _autoAdjustTopAndBottomBlank = autoAdjustTopAndBottomBlank;
-    if (!autoAdjustTopAndBottomBlank) {
-        self.navigationBarBottomOriginY = 0.0f;
-        self.tabBarOccupyHeight = 0.0f;
-        [self.view setNeedsLayout];
-    }
+    
+    [self.view setNeedsLayout];
 }
 
 #pragma mark - layout
@@ -207,11 +175,32 @@
     
     CGFloat width = self.view.frame.size.width;
     
-    CGFloat baseY = self.navigationBarBottomOriginY;
-    self.scrollMenuView.frame = CGRectMake(0, baseY, width, kDefaultMLScrollMenuViewHeight);
-    baseY+=kDefaultMLScrollMenuViewHeight;
-    self.scrollView.frame = CGRectMake(0, baseY, width, self.view.frame.size.height-self.tabBarOccupyHeight-baseY);
-    //这里contentOffset可能会被重置到0，0，所以需要修正一下
+    CGFloat navigationBarBottomOriginY = 0.0f;
+    CGFloat tabBarOccupyHeight = 0.0f;
+    
+    if (self.autoAdjustTopAndBottomBlank) {
+        if (self.navigationController&&!self.navigationController.navigationBar.translucent) {
+            navigationBarBottomOriginY = 0.0f;
+        }else{
+            navigationBarBottomOriginY += [UIApplication sharedApplication].statusBarHidden?0.0f:20.0f;
+            if (self.navigationController) {
+                if (!self.navigationController.navigationBarHidden) {
+                    navigationBarBottomOriginY += self.navigationController.navigationBar.intrinsicContentSize.height;
+                }
+            }
+        }
+        if (self.tabBarController&&self.tabBarController.tabBar.translucent&&!self.hidesBottomBarWhenPushed) {
+            tabBarOccupyHeight += self.tabBarController.tabBar.intrinsicContentSize.height;
+        }
+    }
+    
+    CGFloat baseY = navigationBarBottomOriginY;
+    self.scrollMenuView.frame = CGRectMake(0, baseY, width, self.scrollMenuView.frame.size.height);
+    
+    baseY+=self.scrollMenuView.frame.size.height;
+    self.scrollView.frame = CGRectMake(0, baseY, width, self.view.frame.size.height-tabBarOccupyHeight-baseY);
+    
+    //这里contentOffset可能会被重置到其他位置，所以需要修正一下到当前currentIndex
     self.scrollView.contentOffset = CGPointMake(self.scrollMenuView.currentIndex*self.scrollView.frame.size.width,0);
     
     //设置其contentSize
@@ -237,12 +226,12 @@
 
 - (void)didChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)currentIndex animated:(BOOL)animated scrollMenuView:(MLScrollMenuView *)scrollMenuView
 {
-    if (!self.ignoreSetCurrentIndex) {
+    if (!_ignoreSetCurrentIndex) {
         //直接点击过来的和手动拖的完全分隔开，不用一回事
         NSInteger oldCurrentIndex = floor(self.scrollView.contentOffset.x / self.scrollView.frame.size.width);
         
         if (!self.dontScrollWhenDirectClickMenu&&animated&&self.view.window) {
-            self.dontChangeDisplayMenuView = YES;
+            _dontChangeDisplayMenuView = YES;
             self.scrollView.userInteractionEnabled = NO;
             [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0) animated:YES];
             return;
@@ -297,9 +286,7 @@
             }
         }
         
-        if (self.didChangeCurrentIndexBlock) {
-            self.didChangeCurrentIndexBlock(currentIndex,self);
-        }
+        [self updateCurrentIndexTo:currentIndex];
     }
 }
 
@@ -311,9 +298,9 @@
 #pragma mark - scrollView delegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    if (self.lastContentOffsetX==scrollView.contentOffset.x) {return;}
-    BOOL isScrollToRight = self.lastContentOffsetX<scrollView.contentOffset.x;
-    self.lastContentOffsetX = scrollView.contentOffset.x;
+    if (_lastContentOffsetX==scrollView.contentOffset.x) {return;}
+    BOOL isScrollToRight = _lastContentOffsetX<scrollView.contentOffset.x;
+    _lastContentOffsetX = scrollView.contentOffset.x;
     
     NSInteger leftIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
     if (leftIndex<0||leftIndex+1>self.viewControllers.count-1) {
@@ -322,14 +309,13 @@
     NSInteger rightIndex = leftIndex+1;
     CGFloat leftToRightRatio = (scrollView.contentOffset.x - leftIndex * scrollView.frame.size.width) / scrollView.frame.size.width;
     
-    if (!self.dontChangeDisplayMenuView) {
+    if (!_dontChangeDisplayMenuView) {
         [self.scrollMenuView displayFromIndex:leftIndex toIndex:rightIndex ratio:fabs(leftToRightRatio)];
     }
     
     //如果为0说明实际上已经处于绝对的某页面了，这时候就不应该去处理vc will appear or disappear 状态了。而应该交给scrollViewDidEndDecelerating去处理did appear和dod disappear
     
-    //TODO: 但是如果在某种异常情况下，leftToRightRatio直接就到了目标位置，而没有中间contentOffset变化的过程的话，就会产生目标VC没有被add的情况，
-    //scrollViewDidEndDecelerating也会啥都没做了。但是这种情况基本不可能遇到的
+    //如果若在某种异常情况下，leftToRightRatio直接就到了目标位置，而没有中间contentOffset变化的过程的话，就会产生目标VC没有被add的情况，scrollViewDidEndDecelerating也会啥都没做了。但这种情况正常情况下不可能遇到的。
     if (leftToRightRatio==0.0f) {
         return;
     }
@@ -391,9 +377,9 @@
         return;
     }
     
-    self.ignoreSetCurrentIndex = YES;
+    _ignoreSetCurrentIndex = YES;
     [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
-    self.ignoreSetCurrentIndex = NO;
+    _ignoreSetCurrentIndex = NO;
     
     if (self.childViewControllers.count>1) { //这个是判断当前是否在边界往无VC的方向做无效拖动的时候
         UIViewController *currentVC = self.viewControllers[currentIndex];
@@ -433,15 +419,13 @@
             }
         }
         
-        if (self.didChangeCurrentIndexBlock) {
-            self.didChangeCurrentIndexBlock(currentIndex,self);
-        }
+        [self updateCurrentIndexTo:currentIndex];
     }
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    self.dontChangeDisplayMenuView = NO;
+    _dontChangeDisplayMenuView = NO;
     self.scrollMenuView.userInteractionEnabled = NO;
 }
 
@@ -462,13 +446,26 @@
 - (BOOL)lastAppearanceTransitionForViewController:(UIViewController*)vc
 {
     NSString *pointerString = [NSString stringWithFormat:@"%p",vc];
-    return [self.viewControllerAppearanceTransitionMap[pointerString] boolValue];
+    return [_viewControllerAppearanceTransitionMap[pointerString] boolValue];
 }
 
 - (void)setLastAppearanceTransition:(BOOL)appearanceTransition forViewController:(UIViewController*)vc
 {
     NSString *pointerString = [NSString stringWithFormat:@"%p",vc];
-    self.viewControllerAppearanceTransitionMap[pointerString] = @(appearanceTransition);
+    _viewControllerAppearanceTransitionMap[pointerString] = @(appearanceTransition);
+}
+
+- (void)updateCurrentIndexTo:(NSInteger)currentIndex
+{
+    NSInteger oldIndex = _lastCurrentIndex;
+    if (oldIndex==currentIndex) {
+        return;
+    }
+    _lastCurrentIndex = currentIndex;
+    
+    if (self.didChangeCurrentIndexBlock) {
+        self.didChangeCurrentIndexBlock(oldIndex,currentIndex,self);
+    }
 }
 
 #pragma mark - outcall

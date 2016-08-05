@@ -35,7 +35,8 @@
 @property (nonatomic, strong) UIColor *currentIndicatorColor;
 @property (nonatomic, strong) UIColor *indicatorBackgroundColor;
 @property (nonatomic, strong, readonly) UIImageView *backgroundImageView;
-@property (nonatomic, assign) CGFloat currentIndicatorViewXPadding;//默认为5.0f，代表指示器的左右内边距(即为比文本长度多那么一点的那些距离)
+@property (nonatomic, assign) CGFloat currentIndicatorViewXPadding; //默认为5.0f，代表指示器的左右内边距(即为比文本长度多那么一点的那些距离)
+@property (nonatomic, assign) UIOffset currentIndicatorViewOffset; //可自定义稍修正下indicatorView的位置
 
 /**
  *  滚动菜单的delegate，注意在使用MLPageViewController时候即为MLPageViewController不可修改。
