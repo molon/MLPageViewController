@@ -73,6 +73,7 @@
     _currentIndicatorColor = [UIColor colorWithRed:0.996 green:0.827 blue:0.216 alpha:1.000];
     _indicatorBackgroundColor = [UIColor clearColor];
     _currentIndicatorViewXPadding = kDefaultMLScrollMenuViewIndicatorViewXPadding;
+    _currentIndicatorViewOffset = UIOffsetZero;
     
     [self addSubview:self.backgroundImageView];
     [self addSubview:self.indicatorBackgroundView];
@@ -271,7 +272,7 @@
     
     //找到title对应的宽度
     NSString *title = [self.delegate titleForIndex:indexPath.row];
-    CGSize size = [self singleSizeWithFont:self.titleFont string:title];
+    CGSize size = [self singleLineSizeForFont:self.titleFont string:title];
     size.height = collectionView.frame.size.height-(collectionView.contentInset.top+collectionView.contentInset.bottom);
     
     size.width+=kMLScrollMenuViewCollectionViewCellXPadding*2;
@@ -289,16 +290,22 @@
 }
 
 #pragma mark - helper
-- (CGSize)singleSizeWithFont:(UIFont*)font string:(NSString*)string
+- (CGSize)singleLineSizeForFont:(UIFont*)font string:(NSString*)string
 {
     NSAssert(font, @"singleHeightWithFont:方法必须传进font参数");
     if (string.length<=0) {
         return CGSizeZero;
     }
     
+    NSArray* lines = [string componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    NSString *firstLine = [lines firstObject];
+    if (firstLine.length<=0) {
+        return CGSizeZero;
+    }
+    
     CGSize size = CGSizeZero;
     NSDictionary *attribute = @{NSFontAttributeName: font};
-    size = [string boundingRectWithSize:CGSizeMake(MAXFLOAT, MAXFLOAT)
+    size = [firstLine boundingRectWithSize:CGSizeMake(HUGE, HUGE)
                                 options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:attribute context:nil].size;
     
     size.height = ceilf(size.height);
@@ -312,12 +319,11 @@
     //找到对应cell的位置
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
     
-    //找到title对应的宽度
-    NSString *title = [self.delegate titleForIndex:index];
-    CGSize size = [self singleSizeWithFont:self.titleFont string:title];
-    size.width += _currentIndicatorViewXPadding*2;
+    CGFloat width = attributes.frame.size.width-(kMLScrollMenuViewCollectionViewCellXPadding-_currentIndicatorViewXPadding)*2;
     
-    return CGRectMake(attributes.frame.origin.x+(attributes.frame.size.width-size.width)/2, attributes.frame.size.height, size.width, kMLScrollMenuViewIndicatorViewHeight);
+    CGRect result = CGRectMake(attributes.frame.origin.x+(kMLScrollMenuViewCollectionViewCellXPadding-_currentIndicatorViewXPadding), attributes.frame.size.height, width, kMLScrollMenuViewIndicatorViewHeight);
+    result = CGRectOffset(result, _currentIndicatorViewOffset.horizontal, _currentIndicatorViewOffset.vertical);
+    return result;
 }
 
 - (CGPoint)contentOffsetWidthIndex:(NSInteger)index

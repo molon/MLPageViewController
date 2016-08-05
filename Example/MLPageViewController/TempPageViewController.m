@@ -29,7 +29,7 @@
     self.scrollMenuView.currentIndicatorColor = self.scrollMenuView.currentTitleColor;
     self.scrollMenuView.indicatorBackgroundColor = [UIColor colorWithWhite:0.675 alpha:1.000];
     self.scrollMenuView.backgroundColor = [UIColor colorWithRed:1.000 green:0.330 blue:0.394 alpha:1.000];
-    self.scrollMenuView.currentIndicatorViewXPadding = 0.0f;
+    self.scrollMenuView.currentIndicatorViewXPadding = 8.0f;
     
     [self setCurrentIndex:5 animated:NO];
 }
