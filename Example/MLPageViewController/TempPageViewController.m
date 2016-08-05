@@ -24,7 +24,6 @@
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"test" style:UIBarButtonItemStylePlain target:self action:@selector(test)];
     
-    
     self.scrollMenuView.titleColor = [UIColor blackColor];
     self.scrollMenuView.currentTitleColor = [UIColor colorWithRed:0.996 green:0.918 blue:0.039 alpha:1.000];
     self.scrollMenuView.currentIndicatorColor = self.scrollMenuView.currentTitleColor;
@@ -39,7 +38,6 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
 
 - (void)test
 {

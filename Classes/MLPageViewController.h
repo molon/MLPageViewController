@@ -18,6 +18,11 @@
 @property (nonatomic, strong,readonly) MLScrollMenuView *scrollMenuView;
 
 /**
+ *  页VC的views所在的scrollView
+ */
+@property (nonatomic, strong, readonly) UIScrollView *scrollView;
+
+/**
  *  所绑定的页viewControllers
  */
 @property (nonatomic, strong,readonly) NSArray *viewControllers;
@@ -35,7 +40,7 @@
 /**
  *  页面切换后的回调
  */
-@property (nonatomic, copy) void(^didChangeCurrentIndexBlock)(NSInteger currentIndex,MLPageViewController *pageVC);
+@property (nonatomic, copy) void(^didChangeCurrentIndexBlock)(NSInteger fromIndex, NSInteger toIndex, MLPageViewController *pageVC);
 
 /**
  *  初始化时候必须提供所有的viewControllers，后续不可增删
@@ -67,6 +72,5 @@
  *  @param animated     是否动画过去
  */
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated;
-
 
 @end

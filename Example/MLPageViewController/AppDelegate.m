@@ -31,8 +31,8 @@
     
     
     TempPageViewController *pageViewController = [[TempPageViewController alloc]initWithViewControllers:array];
-    [pageViewController setDidChangeCurrentIndexBlock:^(NSInteger currentIndex, MLPageViewController *vc) {
-        NSLog(@"change currentindex to:%ld ",currentIndex);
+    [pageViewController setDidChangeCurrentIndexBlock:^(NSInteger fromIndex, NSInteger toIndex, MLPageViewController *vc) {
+        NSLog(@"change currentindex from %ld to:%ld ",fromIndex,toIndex);
     }];
     
     self.window.rootViewController = [[UINavigationController alloc]initWithRootViewController:pageViewController];
