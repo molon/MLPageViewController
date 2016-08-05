@@ -40,6 +40,7 @@
 /**
  *  页面切换后的回调
  */
+#warning 如果oldIndex是-1 表示第一次显示某页面，还有闪电购下，切换tab时候被说begin/end没有对应起来，还有头部菜单在数量太少的时候reloadData会有跳跃问题，还有就是会提示itemSize不合适
 @property (nonatomic, copy) void(^didChangeCurrentIndexBlock)(NSInteger fromIndex, NSInteger toIndex, MLPageViewController *pageVC);
 
 /**

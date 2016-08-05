@@ -23,7 +23,7 @@
     self.window.backgroundColor = [UIColor whiteColor];
     
     NSMutableArray *array = [NSMutableArray array];
-    for (NSInteger i=0; i<12; i++) {
+    for (NSInteger i=0; i<3; i++) {
         TempViewController *temp = [TempViewController new];
         temp.title = [NSString stringWithFormat:@"%ld月",i];
         [array addObject:temp];

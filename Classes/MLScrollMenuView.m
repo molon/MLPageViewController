@@ -79,11 +79,12 @@
     [self addSubview:self.indicatorBackgroundView];
     
     [self addSubview:self.collectionView];
+    
     __weak __typeof(self)weakSelf = self;
     [self.collectionView setDidReloadDataBlock:^(MLScrollMenuCollectionView *collectionView) {
         __strong __typeof(weakSelf)sSelf = weakSelf;
         
-        if (sSelf.minCellWidth*[sSelf.delegate titleCount]<collectionView.frame.size.width) {
+        if (collectionView.contentSize.width<collectionView.frame.size.width&&sSelf.minCellWidth*[sSelf.delegate titleCount]<collectionView.frame.size.width-1.0f) {
             sSelf.minCellWidth = collectionView.frame.size.width/[sSelf.delegate titleCount];
             //重新布局
             [collectionView reloadData];
@@ -106,6 +107,7 @@
         layout.minimumLineSpacing = 0.0f;
         layout.minimumInteritemSpacing = 0.0f;
         layout.sectionInset = UIEdgeInsetsZero;
+        layout.itemSize = CGSizeZero;
         
         _collectionView = [[MLScrollMenuCollectionView alloc]initWithFrame:self.bounds collectionViewLayout:layout];
         _collectionView.backgroundColor = [UIColor clearColor];
@@ -160,21 +162,18 @@
 - (void)setTitleColor:(UIColor *)titleColor
 {
     _titleColor = titleColor;
-    
     [self reloadData];
 }
 
 - (void)setCurrentTitleColor:(UIColor *)currentTitleColor
 {
     _currentTitleColor = currentTitleColor;
-    
     [self reloadData];
 }
 
 - (void)setTitleFont:(UIFont *)titleFont
 {
     _titleFont = titleFont;
-    
     [self reloadData];
 }
 
@@ -270,10 +269,11 @@
 {
     NSAssert(self.delegate, @"MLScrollMenuViewDelegate is required");
     
+//    NSLog(@"%@",NSStringFromCGSize([((UICollectionViewFlowLayout*)collectionViewLayout) itemSize]));
     //找到title对应的宽度
     NSString *title = [self.delegate titleForIndex:indexPath.row];
     CGSize size = [self singleLineSizeForFont:self.titleFont string:title];
-    size.height = collectionView.frame.size.height-(collectionView.contentInset.top+collectionView.contentInset.bottom);
+    size.height = fmax(0.0f, collectionView.frame.size.height-(collectionView.contentInset.top+collectionView.contentInset.bottom));
     
     size.width+=kMLScrollMenuViewCollectionViewCellXPadding*2;
     
@@ -319,9 +319,13 @@
     //找到对应cell的位置
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
     
-    CGFloat width = attributes.frame.size.width-(kMLScrollMenuViewCollectionViewCellXPadding-_currentIndicatorViewXPadding)*2;
+    //找到title对应的宽度
+    NSString *title = [self.delegate titleForIndex:index];
+    CGSize size = [self singleLineSizeForFont:self.titleFont string:title];
+    size.width += _currentIndicatorViewXPadding*2;
     
-    CGRect result = CGRectMake(attributes.frame.origin.x+(kMLScrollMenuViewCollectionViewCellXPadding-_currentIndicatorViewXPadding), attributes.frame.size.height, width, kMLScrollMenuViewIndicatorViewHeight);
+    CGRect result = CGRectMake(attributes.frame.origin.x+(attributes.frame.size.width-size.width)/2, attributes.frame.size.height, size.width, kMLScrollMenuViewIndicatorViewHeight);
+    
     result = CGRectOffset(result, _currentIndicatorViewOffset.horizontal, _currentIndicatorViewOffset.vertical);
     return result;
 }
