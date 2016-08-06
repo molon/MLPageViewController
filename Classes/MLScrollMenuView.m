@@ -277,6 +277,8 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     
     self.backgroundImageView.frame = self.bounds;
     self.indicatorBackgroundView.frame = CGRectMake(0, self.frame.size.height-MLScrollMenuViewIndicatorViewHeight+self.currentIndicatorViewOffset.vertical, self.frame.size.width, MLScrollMenuViewIndicatorViewHeight);
+    
+    [self.collectionView.collectionViewLayout invalidateLayout];
     self.collectionView.frame = self.bounds;
     [self reloadData];
 }

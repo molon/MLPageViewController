@@ -30,16 +30,19 @@
     self.scrollMenuView.backgroundColor = [UIColor colorWithRed:1.000 green:0.330 blue:0.394 alpha:1.000];
     self.scrollMenuView.currentIndicatorViewXPadding = 8.0f;
     
-//    CGRect frame = self.scrollMenuView.frame;
-//    frame.size.height = 30.0f;
-//    self.scrollMenuView.frame = frame;
+    //test change height for scrollMenuView to less than DefaultMLScrollMenuViewHeightForMLPageViewController
+    CGRect frame = self.scrollMenuView.frame;
+    frame.size.height = 30.0f;
+    self.scrollMenuView.frame = frame;
     
+    //test setting the init index
     [self setCurrentIndex:2 animated:NO];
 }
 
 - (void)test
 {
-    [self setCurrentIndex:3 animated:YES];
+    //test change page manually
+    [self setCurrentIndex:1 animated:YES];
 }
 
 @end
