@@ -7,14 +7,17 @@
 //
 
 #import "MLScrollMenuView.h"
-#import "MLScrollMenuCollectionViewCell.h"
 
-@interface MLScrollMenuCollectionView : UICollectionView
+CGFloat const MLScrollMenuViewCollectionViewCellXPadding = 10.0f;
+CGFloat const MLScrollMenuViewIndicatorViewHeight = 2.0f;
+CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 
-@property (nonatomic, copy) void(^didReloadDataBlock)(MLScrollMenuCollectionView *collectionView);
+@interface _MLScrollMenuCollectionView : UICollectionView
+
+@property (nonatomic, copy) void(^didReloadDataBlock)(_MLScrollMenuCollectionView *collectionView);
 
 @end
-@implementation MLScrollMenuCollectionView
+@implementation _MLScrollMenuCollectionView
 
 - (void)reloadData
 {
@@ -28,23 +31,64 @@
 
 @end
 
+@interface _MLScrollMenuCollectionViewCell : UICollectionViewCell
+
+@property (nonatomic, strong) UILabel *titleLabel;
+
+@end
+
+@implementation _MLScrollMenuCollectionViewCell
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self.contentView addSubview:self.titleLabel];
+    }
+    return self;
+}
+
+#pragma mark - getter
+- (UILabel *)titleLabel
+{
+    if (!_titleLabel) {
+        UILabel* label = [[UILabel alloc]init];
+        label.backgroundColor = [UIColor clearColor];
+        label.textColor = [UIColor blackColor];
+        label.font = [UIFont systemFontOfSize:14.0f];
+        label.textAlignment = NSTextAlignmentCenter;
+        
+        _titleLabel = label;
+    }
+    return _titleLabel;
+}
+
+#pragma mark - layout
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    
+    self.titleLabel.frame = self.contentView.bounds;
+}
+
+@end
+
 @interface MLScrollMenuView()<UICollectionViewDataSource,UICollectionViewDelegate>
 
-@property (nonatomic, strong) MLScrollMenuCollectionView *collectionView;
+@property (nonatomic, strong) _MLScrollMenuCollectionView *collectionView;
 @property (nonatomic, strong) UIView *indicatorBackgroundView;
 @property (nonatomic, strong) UIView *indicatorView;
 @property (nonatomic, assign) NSInteger currentIndex;
 
-//最小的cell宽度
-@property (nonatomic, assign) CGFloat minCellWidth;
-
 @property (nonatomic, strong) UIImageView *backgroundImageView;
-
-@property (nonatomic, assign) BOOL changeCurrentIndexAnimated;
 
 @end
 
 @implementation MLScrollMenuView
+{
+    NSMutableArray *_cellWidths;
+    BOOL _changeCurrentIndexAnimated;
+}
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
@@ -72,25 +116,17 @@
     _currentTitleColor = [UIColor redColor];
     _currentIndicatorColor = [UIColor colorWithRed:0.996 green:0.827 blue:0.216 alpha:1.000];
     _indicatorBackgroundColor = [UIColor clearColor];
-    _currentIndicatorViewXPadding = kDefaultMLScrollMenuViewIndicatorViewXPadding;
+    _currentIndicatorViewXPadding = DefaultMLScrollMenuViewIndicatorViewXPadding;
     _currentIndicatorViewOffset = UIOffsetZero;
     
     [self addSubview:self.backgroundImageView];
     [self addSubview:self.indicatorBackgroundView];
-    
     [self addSubview:self.collectionView];
+    
     __weak __typeof(self)weakSelf = self;
-    [self.collectionView setDidReloadDataBlock:^(MLScrollMenuCollectionView *collectionView) {
-        __strong __typeof(weakSelf)sSelf = weakSelf;
-        
-        if (sSelf.minCellWidth*[sSelf.delegate titleCount]<collectionView.frame.size.width) {
-            sSelf.minCellWidth = collectionView.frame.size.width/[sSelf.delegate titleCount];
-            //重新布局
-            [collectionView reloadData];
-            return;
-        }
-        
+    [self.collectionView setDidReloadDataBlock:^(_MLScrollMenuCollectionView *collectionView) {
         //矫正indicator的位置，可能有变化
+        __strong __typeof(weakSelf)sSelf = weakSelf;
         [sSelf setCurrentIndex:sSelf.currentIndex animated:NO];
     }];
     
@@ -98,7 +134,7 @@
 }
 
 #pragma mark - getter
-- (MLScrollMenuCollectionView *)collectionView
+- (_MLScrollMenuCollectionView *)collectionView
 {
     if (!_collectionView) {
         UICollectionViewFlowLayout *layout = [UICollectionViewFlowLayout new];
@@ -107,16 +143,16 @@
         layout.minimumInteritemSpacing = 0.0f;
         layout.sectionInset = UIEdgeInsetsZero;
         
-        _collectionView = [[MLScrollMenuCollectionView alloc]initWithFrame:self.bounds collectionViewLayout:layout];
+        _collectionView = [[_MLScrollMenuCollectionView alloc]initWithFrame:self.bounds collectionViewLayout:layout];
         _collectionView.backgroundColor = [UIColor clearColor];
         _collectionView.delegate = self;
         _collectionView.dataSource = self;
         _collectionView.scrollsToTop = NO;
         _collectionView.showsHorizontalScrollIndicator = NO;
         _collectionView.showsVerticalScrollIndicator = NO;
-        _collectionView.contentInset = UIEdgeInsetsMake(0, 0, kMLScrollMenuViewIndicatorViewHeight, 0);
+        _collectionView.contentInset = UIEdgeInsetsMake(0, 0, MLScrollMenuViewIndicatorViewHeight, 0);
         
-        [_collectionView registerClass:[MLScrollMenuCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([MLScrollMenuCollectionViewCell class])];
+        [_collectionView registerClass:[_MLScrollMenuCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([_MLScrollMenuCollectionViewCell class])];
     }
     return _collectionView;
 }
@@ -160,21 +196,18 @@
 - (void)setTitleColor:(UIColor *)titleColor
 {
     _titleColor = titleColor;
-    
     [self reloadData];
 }
 
 - (void)setCurrentTitleColor:(UIColor *)currentTitleColor
 {
     _currentTitleColor = currentTitleColor;
-    
     [self reloadData];
 }
 
 - (void)setTitleFont:(UIFont *)titleFont
 {
     _titleFont = titleFont;
-    
     [self reloadData];
 }
 
@@ -188,6 +221,12 @@
 {
     _indicatorBackgroundColor = indicatorBackgroundColor;
     self.indicatorBackgroundView.backgroundColor = indicatorBackgroundColor;
+}
+
+- (void)setCurrentIndicatorViewOffset:(UIOffset)currentIndicatorViewOffset
+{
+    _currentIndicatorViewOffset = currentIndicatorViewOffset;
+    [self setNeedsLayout];
 }
 
 - (void)setCurrentIndex:(NSInteger)currentIndex
@@ -204,12 +243,12 @@
     _currentIndex = currentIndex;
     
     if (oldIndex!=_currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(didChangeCurrentIndexFrom:to:animated:scrollMenuView:)]) {
-        [self.delegate didChangeCurrentIndexFrom:oldIndex to:currentIndex animated:self.changeCurrentIndexAnimated scrollMenuView:self];
+        [self.delegate didChangeCurrentIndexFrom:oldIndex to:currentIndex animated:_changeCurrentIndexAnimated scrollMenuView:self];
     }
     
     [self updateTitleColorWithCurrentIndex:currentIndex];
     
-    if (self.changeCurrentIndexAnimated) {
+    if (_changeCurrentIndexAnimated) {
         self.collectionView.userInteractionEnabled = NO;
         [UIView animateWithDuration:.25f animations:^{
             [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:YES];
@@ -226,9 +265,9 @@
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated
 {
     //不直接用动画block包括进来是怕didChangeCurrentIndex里有对其他view进行调整的同时也被动画了
-    self.changeCurrentIndexAnimated = animated;
+    _changeCurrentIndexAnimated = animated;
     self.currentIndex = currentIndex;
-    self.changeCurrentIndexAnimated = NO;
+    _changeCurrentIndexAnimated = NO;
 }
 
 #pragma mark - layout
@@ -237,11 +276,9 @@
     [super layoutSubviews];
     
     self.backgroundImageView.frame = self.bounds;
-    self.indicatorBackgroundView.frame = CGRectMake(0, self.frame.size.height-kMLScrollMenuViewIndicatorViewHeight, self.frame.size.width, kMLScrollMenuViewIndicatorViewHeight);
-    
+    self.indicatorBackgroundView.frame = CGRectMake(0, self.frame.size.height-MLScrollMenuViewIndicatorViewHeight+self.currentIndicatorViewOffset.vertical, self.frame.size.width, MLScrollMenuViewIndicatorViewHeight);
     self.collectionView.frame = self.bounds;
-    self.minCellWidth = 0.0f;
-    [self.collectionView reloadData];
+    [self reloadData];
 }
 
 #pragma mark - collectionView delegate
@@ -255,7 +292,7 @@
 {
     NSAssert(self.delegate, @"MLScrollMenuViewDelegate is required");
     
-    MLScrollMenuCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([MLScrollMenuCollectionViewCell class]) forIndexPath:indexPath];
+    _MLScrollMenuCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([_MLScrollMenuCollectionViewCell class]) forIndexPath:indexPath];
     
     NSString *title = [self.delegate titleForIndex:indexPath.row];
     
@@ -270,16 +307,10 @@
 {
     NSAssert(self.delegate, @"MLScrollMenuViewDelegate is required");
     
-    //找到title对应的宽度
-    NSString *title = [self.delegate titleForIndex:indexPath.row];
-    CGSize size = [self singleLineSizeForFont:self.titleFont string:title];
-    size.height = collectionView.frame.size.height-(collectionView.contentInset.top+collectionView.contentInset.bottom);
-    
-    size.width+=kMLScrollMenuViewCollectionViewCellXPadding*2;
-    
-    size.width = fmax(size.width, self.minCellWidth);
-    
-    return size;
+    return CGSizeMake(
+                             [_cellWidths[indexPath.row] doubleValue],
+                             fmax(0.0f, collectionView.frame.size.height-(collectionView.contentInset.top+collectionView.contentInset.bottom))
+                             );
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
@@ -319,9 +350,13 @@
     //找到对应cell的位置
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
     
-    CGFloat width = attributes.frame.size.width-(kMLScrollMenuViewCollectionViewCellXPadding-_currentIndicatorViewXPadding)*2;
+    //找到title对应的宽度
+    NSString *title = [self.delegate titleForIndex:index];
+    CGSize size = [self singleLineSizeForFont:self.titleFont string:title];
+    size.width += _currentIndicatorViewXPadding*2;
     
-    CGRect result = CGRectMake(attributes.frame.origin.x+(kMLScrollMenuViewCollectionViewCellXPadding-_currentIndicatorViewXPadding), attributes.frame.size.height, width, kMLScrollMenuViewIndicatorViewHeight);
+    CGRect result = CGRectMake(attributes.frame.origin.x+(attributes.frame.size.width-size.width)/2, attributes.frame.size.height, size.width, MLScrollMenuViewIndicatorViewHeight);
+    
     result = CGRectOffset(result, _currentIndicatorViewOffset.horizontal, _currentIndicatorViewOffset.vertical);
     return result;
 }
@@ -344,7 +379,7 @@
 
 - (void)updateTitleColorWithCurrentIndex:(NSInteger)currentIndex
 {
-    for (MLScrollMenuCollectionViewCell *cell in [self.collectionView visibleCells]) {
+    for (_MLScrollMenuCollectionViewCell *cell in [self.collectionView visibleCells]) {
         NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
         cell.titleLabel.textColor = (indexPath.row==currentIndex)?self.currentTitleColor:self.titleColor;
     }
@@ -353,6 +388,26 @@
 #pragma mark - outcall
 - (void)reloadData
 {
+    NSInteger count = [self.delegate titleCount];
+    _cellWidths = [NSMutableArray arrayWithCapacity:count];
+    
+    CGFloat totalWidth = 0.0f;
+    for (NSInteger i=0; i<count; i++) {
+        NSString *title = [self.delegate titleForIndex:i];
+        CGSize size = [self singleLineSizeForFont:self.titleFont string:title];
+        size.width += MLScrollMenuViewCollectionViewCellXPadding*2;
+        [_cellWidths addObject:@(size.width)];
+        totalWidth += size.width;
+    }
+    
+    if (totalWidth<self.collectionView.frame.size.width) {
+        CGFloat widthOffset = (self.collectionView.frame.size.width-totalWidth)/count;
+        //剩余空间均衡一下
+        for (NSInteger i=0; i<count; i++) {
+            _cellWidths[i] = @(widthOffset+[_cellWidths[i] doubleValue]);
+        }
+    }
+    
     [self.collectionView reloadData];
 }
 

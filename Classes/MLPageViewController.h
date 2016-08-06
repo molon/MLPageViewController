@@ -6,11 +6,12 @@
 //  Copyright (c) 2015年 molon. All rights reserved.
 //
 
-#import "MLContainerController.h"
+#import "MLContainerControllerForMLPage.h"
+#import "MLScrollMenuView.h"
 
-#define kDefaultMLScrollMenuViewHeight 40.0f
-@class MLScrollMenuView;
-@interface MLPageViewController : MLContainerController
+FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewHeightForMLPageViewController;
+
+@interface MLPageViewController : MLContainerControllerForMLPage
 
 /**
  *  所绑定的scrollMenuView
@@ -38,7 +39,7 @@
 @property (nonatomic, assign) BOOL dontScrollWhenDirectClickMenu;
 
 /**
- *  页面切换后的回调
+ *  页面切换回调
  */
 @property (nonatomic, copy) void(^didChangeCurrentIndexBlock)(NSInteger fromIndex, NSInteger toIndex, MLPageViewController *pageVC);
 
@@ -52,7 +53,7 @@
 - (instancetype)initWithViewControllers:(NSArray *)viewControllers;
 
 /**
- *  当前ViewController的index
+ *  当前ViewController的index，开始默认为0
  *
  *  @return 当前ViewController的index
  */
@@ -72,5 +73,12 @@
  *  @param animated     是否动画过去
  */
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated;
+
+/**
+ 这个一般用于自定义布局时候的便捷设置scrollView新frame的方法
+ 
+ @param frame newFrame
+ */
+- (void)changeScrollViewFrameTo:(CGRect)frame;
 
 @end

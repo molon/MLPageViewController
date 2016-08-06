@@ -21,9 +21,10 @@
 
 @end
 
-#define kMLScrollMenuViewCollectionViewCellXPadding 10.0f
-#define kMLScrollMenuViewIndicatorViewHeight 2.0f
-#define kDefaultMLScrollMenuViewIndicatorViewXPadding 5.0f
+FOUNDATION_EXPORT CGFloat const MLScrollMenuViewCollectionViewCellXPadding;
+FOUNDATION_EXPORT CGFloat const MLScrollMenuViewIndicatorViewHeight;
+FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
+
 @interface MLScrollMenuView : UIView
 
 @property (nonatomic, assign, readonly) NSInteger currentIndex;

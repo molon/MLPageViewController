@@ -7,17 +7,15 @@
 //
 
 #import "MLPageViewController.h"
-#import "MLScrollMenuView.h"
 
-#define CHILD(childClass,object) \
-((childClass *)object) \
-\
+CGFloat const DefaultMLScrollMenuViewHeightForMLPageViewController = 40.0f;
+NSInteger const UndefinedPageIndexForMLPageViewController = -1;
 
-@interface MLPageScrollView : UIScrollView
+@interface _MLPageScrollView : UIScrollView
 
 @end
 
-@implementation MLPageScrollView
+@implementation _MLPageScrollView
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
@@ -40,13 +38,12 @@
     return NO;
 }
 
-
 @end
 
 @interface MLPageViewController ()<MLScrollMenuViewDelegate,UIScrollViewDelegate>
 
 @property (nonatomic, strong) MLScrollMenuView *scrollMenuView;
-@property (nonatomic, strong) MLPageScrollView *scrollView;
+@property (nonatomic, strong) _MLPageScrollView *scrollView;
 @property (nonatomic, strong) NSArray *viewControllers;
 
 @end
@@ -81,7 +78,7 @@
 - (void)setUp
 {
     _autoAdjustTopAndBottomBlank = YES;
-    _lastCurrentIndex = -1;
+    _lastCurrentIndex = UndefinedPageIndexForMLPageViewController;
 }
 
 - (void)viewDidLoad {
@@ -106,28 +103,25 @@
         [self addChildViewController:vc];
         [self.scrollView addSubview:vc.view];
         [vc didMoveToParentViewController:self];
+    
+        _lastCurrentIndex = 0;
     }
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 #pragma mark - getter
 - (MLScrollMenuView *)scrollMenuView
 {
     if (!_scrollMenuView) {
-        _scrollMenuView = [[MLScrollMenuView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kDefaultMLScrollMenuViewHeight)];
+        _scrollMenuView = [[MLScrollMenuView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, DefaultMLScrollMenuViewHeightForMLPageViewController)];
         _scrollMenuView.delegate = self;
     }
     return _scrollMenuView;
 }
 
-- (MLPageScrollView *)scrollView
+- (_MLPageScrollView *)scrollView
 {
     if (!_scrollView) {
-        _scrollView = [[MLPageScrollView alloc]initWithFrame:CGRectMake(0, kDefaultMLScrollMenuViewHeight, self.view.frame.size.width, self.view.frame.size.height-kDefaultMLScrollMenuViewHeight)];
+        _scrollView = [[_MLPageScrollView alloc]initWithFrame:CGRectMake(0, DefaultMLScrollMenuViewHeightForMLPageViewController, self.view.frame.size.width, self.view.frame.size.height-DefaultMLScrollMenuViewHeightForMLPageViewController)];
         _scrollView.scrollsToTop = NO;
         _scrollView.delegate = self;
         _scrollView.pagingEnabled = YES;
@@ -198,19 +192,8 @@
     self.scrollMenuView.frame = CGRectMake(0, baseY, width, self.scrollMenuView.frame.size.height);
     
     baseY+=self.scrollMenuView.frame.size.height;
-    self.scrollView.frame = CGRectMake(0, baseY, width, self.view.frame.size.height-tabBarOccupyHeight-baseY);
     
-    //这里contentOffset可能会被重置到其他位置，所以需要修正一下到当前currentIndex
-    self.scrollView.contentOffset = CGPointMake(self.scrollMenuView.currentIndex*self.scrollView.frame.size.width,0);
-    
-    //设置其contentSize
-    self.scrollView.contentSize = CGSizeMake(width*self.viewControllers.count, self.scrollView.frame.size.height);
-    
-    //设置子view的frame
-    for (int i = 0; i < self.viewControllers.count; i++) {
-        UIViewController *vc = self.viewControllers[i];
-        vc.view.frame = CGRectMake(i*width, 0, width, self.scrollView.frame.size.height);
-    }
+    [self changeScrollViewFrameTo:CGRectMake(0, baseY, width, self.view.frame.size.height-tabBarOccupyHeight-baseY)];
 }
 
 #pragma mark - scrollMenuView delegate
@@ -221,7 +204,7 @@
 
 - (NSString *)titleForIndex:(NSInteger)index
 {
-    return CHILD(UIViewController, self.viewControllers[index]).title;
+    return ((UIViewController*)self.viewControllers[index]).title;
 }
 
 - (void)didChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)currentIndex animated:(BOOL)animated scrollMenuView:(MLScrollMenuView *)scrollMenuView
@@ -257,9 +240,9 @@
             [newCurrentVC beginAppearanceTransition:YES animated:NO];
         }
         
-        //不让触发scrollViewDidScroll
+        //只改变contentOffset
         self.scrollView.delegate = nil;
-        self.scrollView.contentOffset = CGPointMake(currentIndex * self.scrollView.frame.size.width, 0);
+        [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0)];
         self.scrollView.delegate = self;
         
         if (self.view.window) {
@@ -371,6 +354,7 @@
     if (!self.scrollMenuView.userInteractionEnabled) {
         self.scrollMenuView.userInteractionEnabled = YES;
     }
+    _dontChangeDisplayMenuView = NO;
     
     NSInteger currentIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
     if (currentIndex<0||currentIndex>self.viewControllers.count-1) {
@@ -477,4 +461,33 @@
     }
     [self.scrollMenuView setCurrentIndex:currentIndex animated:animated];
 }
+
+- (void)changeScrollViewFrameTo:(CGRect)frame
+{
+    //此时目的仅仅是修正下位置罢了
+    self.scrollView.delegate = nil;
+    
+    CGRect oldFrame = self.scrollView.frame;
+    
+    self.scrollView.frame = frame;
+    
+    if (!CGSizeEqualToSize(frame.size, oldFrame.size)) {
+        CGFloat width = frame.size.width;
+        
+        //设置其contentSize
+        self.scrollView.contentSize = CGSizeMake(width*self.viewControllers.count, self.scrollView.frame.size.height);
+        
+        //这里contentOffset可能会被重置到其他位置，所以需要修正一下到当前currentIndex
+        [self.scrollView setContentOffset:CGPointMake(self.scrollMenuView.currentIndex*self.scrollView.frame.size.width,0)];
+        
+        //设置子view的frame
+        for (int i = 0; i < self.viewControllers.count; i++) {
+            UIViewController *vc = self.viewControllers[i];
+            vc.view.frame = CGRectMake(i*width, 0, width, self.scrollView.frame.size.height);
+        }
+    }
+    
+    self.scrollView.delegate = self;
+}
+
 @end
