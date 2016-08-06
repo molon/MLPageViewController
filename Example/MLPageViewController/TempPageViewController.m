@@ -8,7 +8,6 @@
 
 #import "TempPageViewController.h"
 #import "TempViewController.h"
-#import <MLScrollMenuView.h>
 
 @interface TempPageViewController ()
 
@@ -31,12 +30,11 @@
     self.scrollMenuView.backgroundColor = [UIColor colorWithRed:1.000 green:0.330 blue:0.394 alpha:1.000];
     self.scrollMenuView.currentIndicatorViewXPadding = 8.0f;
     
+//    CGRect frame = self.scrollMenuView.frame;
+//    frame.size.height = 30.0f;
+//    self.scrollMenuView.frame = frame;
+    
     [self setCurrentIndex:2 animated:NO];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void)test

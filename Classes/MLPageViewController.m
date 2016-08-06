@@ -7,17 +7,15 @@
 //
 
 #import "MLPageViewController.h"
-#import "MLScrollMenuView.h"
 
-#define CHILD(childClass,object) \
-((childClass *)object) \
-\
+CGFloat const DefaultMLScrollMenuViewHeightForMLPageViewController = 40.0f;
+NSInteger const UndefinedPageIndexForMLPageViewController = -1;
 
-@interface MLPageScrollView : UIScrollView
+@interface _MLPageScrollView : UIScrollView
 
 @end
 
-@implementation MLPageScrollView
+@implementation _MLPageScrollView
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
@@ -40,13 +38,12 @@
     return NO;
 }
 
-
 @end
 
 @interface MLPageViewController ()<MLScrollMenuViewDelegate,UIScrollViewDelegate>
 
 @property (nonatomic, strong) MLScrollMenuView *scrollMenuView;
-@property (nonatomic, strong) MLPageScrollView *scrollView;
+@property (nonatomic, strong) _MLPageScrollView *scrollView;
 @property (nonatomic, strong) NSArray *viewControllers;
 
 @end
@@ -81,7 +78,7 @@
 - (void)setUp
 {
     _autoAdjustTopAndBottomBlank = YES;
-    _lastCurrentIndex = -1;
+    _lastCurrentIndex = UndefinedPageIndexForMLPageViewController;
 }
 
 - (void)viewDidLoad {
@@ -106,28 +103,25 @@
         [self addChildViewController:vc];
         [self.scrollView addSubview:vc.view];
         [vc didMoveToParentViewController:self];
+    
+        _lastCurrentIndex = 0;
     }
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 #pragma mark - getter
 - (MLScrollMenuView *)scrollMenuView
 {
     if (!_scrollMenuView) {
-        _scrollMenuView = [[MLScrollMenuView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kDefaultMLScrollMenuViewHeight)];
+        _scrollMenuView = [[MLScrollMenuView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, DefaultMLScrollMenuViewHeightForMLPageViewController)];
         _scrollMenuView.delegate = self;
     }
     return _scrollMenuView;
 }
 
-- (MLPageScrollView *)scrollView
+- (_MLPageScrollView *)scrollView
 {
     if (!_scrollView) {
-        _scrollView = [[MLPageScrollView alloc]initWithFrame:CGRectMake(0, kDefaultMLScrollMenuViewHeight, self.view.frame.size.width, self.view.frame.size.height-kDefaultMLScrollMenuViewHeight)];
+        _scrollView = [[_MLPageScrollView alloc]initWithFrame:CGRectMake(0, DefaultMLScrollMenuViewHeightForMLPageViewController, self.view.frame.size.width, self.view.frame.size.height-DefaultMLScrollMenuViewHeightForMLPageViewController)];
         _scrollView.scrollsToTop = NO;
         _scrollView.delegate = self;
         _scrollView.pagingEnabled = YES;
@@ -221,7 +215,7 @@
 
 - (NSString *)titleForIndex:(NSInteger)index
 {
-    return CHILD(UIViewController, self.viewControllers[index]).title;
+    return ((UIViewController*)self.viewControllers[index]).title;
 }
 
 - (void)didChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)currentIndex animated:(BOOL)animated scrollMenuView:(MLScrollMenuView *)scrollMenuView

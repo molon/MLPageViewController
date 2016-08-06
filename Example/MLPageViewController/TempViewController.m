@@ -8,7 +8,7 @@
 
 #import "TempViewController.h"
 
-#define MARKTITLE    NSLog(@"\nTitle:%@ parent:%@ MARK: %s, %d",self.title,self.parentViewController, __PRETTY_FUNCTION__, __LINE__);
+#define MARKTITLE    NSLog(@"\nP:%p Title:%@ parent:%@ MARK: %s, %d",self,self.title,self.parentViewController, __PRETTY_FUNCTION__, __LINE__);
 @interface TempViewController ()
 
 @property (nonatomic, strong) UILabel *label;

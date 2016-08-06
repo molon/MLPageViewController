@@ -1,5 +1,5 @@
 //
-//  MLContainerController.h
+//  MLContainerControllerForMLPage.h
 //  MLPageViewController
 //
 //  Created by molon on 15/8/8.
@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MLContainerController : UIViewController
+@interface MLContainerControllerForMLPage : UIViewController
 
 @end

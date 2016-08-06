@@ -7,14 +7,13 @@
 //
 
 #import "MLScrollMenuView.h"
-#import "MLScrollMenuCollectionViewCell.h"
 
-@interface MLScrollMenuCollectionView : UICollectionView
+@interface _MLScrollMenuCollectionView : UICollectionView
 
-@property (nonatomic, copy) void(^didReloadDataBlock)(MLScrollMenuCollectionView *collectionView);
+@property (nonatomic, copy) void(^didReloadDataBlock)(_MLScrollMenuCollectionView *collectionView);
 
 @end
-@implementation MLScrollMenuCollectionView
+@implementation _MLScrollMenuCollectionView
 
 - (void)reloadData
 {
@@ -28,9 +27,51 @@
 
 @end
 
+@interface _MLScrollMenuCollectionViewCell : UICollectionViewCell
+
+@property (nonatomic, strong) UILabel *titleLabel;
+
+@end
+
+@implementation _MLScrollMenuCollectionViewCell
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self.contentView addSubview:self.titleLabel];
+    }
+    return self;
+}
+
+#pragma mark - getter
+- (UILabel *)titleLabel
+{
+    if (!_titleLabel) {
+        UILabel* label = [[UILabel alloc]init];
+        label.backgroundColor = [UIColor clearColor];
+        label.textColor = [UIColor blackColor];
+        label.font = [UIFont systemFontOfSize:14.0f];
+        label.textAlignment = NSTextAlignmentCenter;
+        
+        _titleLabel = label;
+    }
+    return _titleLabel;
+}
+
+#pragma mark - layout
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    
+    self.titleLabel.frame = self.contentView.bounds;
+}
+
+@end
+
 @interface MLScrollMenuView()<UICollectionViewDataSource,UICollectionViewDelegate>
 
-@property (nonatomic, strong) MLScrollMenuCollectionView *collectionView;
+@property (nonatomic, strong) _MLScrollMenuCollectionView *collectionView;
 @property (nonatomic, strong) UIView *indicatorBackgroundView;
 @property (nonatomic, strong) UIView *indicatorView;
 @property (nonatomic, assign) NSInteger currentIndex;
@@ -81,7 +122,7 @@
     [self addSubview:self.collectionView];
     
     __weak __typeof(self)weakSelf = self;
-    [self.collectionView setDidReloadDataBlock:^(MLScrollMenuCollectionView *collectionView) {
+    [self.collectionView setDidReloadDataBlock:^(_MLScrollMenuCollectionView *collectionView) {
         __strong __typeof(weakSelf)sSelf = weakSelf;
         
         if (collectionView.contentSize.width<collectionView.frame.size.width&&sSelf.minCellWidth*[sSelf.delegate titleCount]<collectionView.frame.size.width-1.0f) {
@@ -99,7 +140,7 @@
 }
 
 #pragma mark - getter
-- (MLScrollMenuCollectionView *)collectionView
+- (_MLScrollMenuCollectionView *)collectionView
 {
     if (!_collectionView) {
         UICollectionViewFlowLayout *layout = [UICollectionViewFlowLayout new];
@@ -107,9 +148,8 @@
         layout.minimumLineSpacing = 0.0f;
         layout.minimumInteritemSpacing = 0.0f;
         layout.sectionInset = UIEdgeInsetsZero;
-        layout.itemSize = CGSizeZero;
         
-        _collectionView = [[MLScrollMenuCollectionView alloc]initWithFrame:self.bounds collectionViewLayout:layout];
+        _collectionView = [[_MLScrollMenuCollectionView alloc]initWithFrame:self.bounds collectionViewLayout:layout];
         _collectionView.backgroundColor = [UIColor clearColor];
         _collectionView.delegate = self;
         _collectionView.dataSource = self;
@@ -118,7 +158,7 @@
         _collectionView.showsVerticalScrollIndicator = NO;
         _collectionView.contentInset = UIEdgeInsetsMake(0, 0, kMLScrollMenuViewIndicatorViewHeight, 0);
         
-        [_collectionView registerClass:[MLScrollMenuCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([MLScrollMenuCollectionViewCell class])];
+        [_collectionView registerClass:[_MLScrollMenuCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([_MLScrollMenuCollectionViewCell class])];
     }
     return _collectionView;
 }
@@ -254,7 +294,7 @@
 {
     NSAssert(self.delegate, @"MLScrollMenuViewDelegate is required");
     
-    MLScrollMenuCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([MLScrollMenuCollectionViewCell class]) forIndexPath:indexPath];
+    _MLScrollMenuCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([_MLScrollMenuCollectionViewCell class]) forIndexPath:indexPath];
     
     NSString *title = [self.delegate titleForIndex:indexPath.row];
     
@@ -348,7 +388,7 @@
 
 - (void)updateTitleColorWithCurrentIndex:(NSInteger)currentIndex
 {
-    for (MLScrollMenuCollectionViewCell *cell in [self.collectionView visibleCells]) {
+    for (_MLScrollMenuCollectionViewCell *cell in [self.collectionView visibleCells]) {
         NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
         cell.titleLabel.textColor = (indexPath.row==currentIndex)?self.currentTitleColor:self.titleColor;
     }
