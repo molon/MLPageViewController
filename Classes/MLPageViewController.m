@@ -194,11 +194,12 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
     baseY+=self.scrollMenuView.frame.size.height;
     self.scrollView.frame = CGRectMake(0, baseY, width, self.view.frame.size.height-tabBarOccupyHeight-baseY);
     
-    //这里contentOffset可能会被重置到其他位置，所以需要修正一下到当前currentIndex
-    self.scrollView.contentOffset = CGPointMake(self.scrollMenuView.currentIndex*self.scrollView.frame.size.width,0);
-    
     //设置其contentSize
     self.scrollView.contentSize = CGSizeMake(width*self.viewControllers.count, self.scrollView.frame.size.height);
+    
+    //这里contentOffset可能会被重置到其他位置，所以需要修正一下到当前currentIndex
+#warning 如果正在拖动中 横屏了的话，这样似乎不合适
+    [self justSetContentOffset:CGPointMake(self.scrollMenuView.currentIndex*self.scrollView.frame.size.width,0)];
     
     //设置子view的frame
     for (int i = 0; i < self.viewControllers.count; i++) {
@@ -251,10 +252,8 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
             [newCurrentVC beginAppearanceTransition:YES animated:NO];
         }
         
-        //不让触发scrollViewDidScroll
-        self.scrollView.delegate = nil;
-        self.scrollView.contentOffset = CGPointMake(currentIndex * self.scrollView.frame.size.width, 0);
-        self.scrollView.delegate = self;
+        //只改变contentOffset
+        [self justSetContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0)];
         
         if (self.view.window) {
             [newCurrentVC endAppearanceTransition];
@@ -365,6 +364,7 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
     if (!self.scrollMenuView.userInteractionEnabled) {
         self.scrollMenuView.userInteractionEnabled = YES;
     }
+    _dontChangeDisplayMenuView = NO;
     
     NSInteger currentIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
     if (currentIndex<0||currentIndex>self.viewControllers.count-1) {
@@ -460,6 +460,14 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
     if (self.didChangeCurrentIndexBlock) {
         self.didChangeCurrentIndexBlock(oldIndex,currentIndex,self);
     }
+}
+
+//只是设置位置，不干其他的
+- (void)justSetContentOffset:(CGPoint)contentOffset
+{
+    self.scrollView.delegate = nil;
+    [self.scrollView setContentOffset:contentOffset];
+    self.scrollView.delegate = self;
 }
 
 #pragma mark - outcall
