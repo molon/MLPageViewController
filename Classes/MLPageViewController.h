@@ -74,4 +74,11 @@ FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewHeightForMLPageViewContro
  */
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated;
 
+/**
+ 这个一般用于自定义布局时候的便捷设置scrollView新frame的方法
+ 
+ @param frame newFrame
+ */
+- (void)changeScrollViewFrameTo:(CGRect)frame;
+
 @end

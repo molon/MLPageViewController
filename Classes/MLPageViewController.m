@@ -193,24 +193,7 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
     
     baseY+=self.scrollMenuView.frame.size.height;
     
-    //此时目的仅仅是修正下位置罢了
-    self.scrollView.delegate = nil;
-    
-    self.scrollView.frame = CGRectMake(0, baseY, width, self.view.frame.size.height-tabBarOccupyHeight-baseY);
-    
-    //设置其contentSize
-    self.scrollView.contentSize = CGSizeMake(width*self.viewControllers.count, self.scrollView.frame.size.height);
-    
-    //这里contentOffset可能会被重置到其他位置，所以需要修正一下到当前currentIndex
-    [self.scrollView setContentOffset:CGPointMake(self.scrollMenuView.currentIndex*self.scrollView.frame.size.width,0)];
-    
-    //设置子view的frame
-    for (int i = 0; i < self.viewControllers.count; i++) {
-        UIViewController *vc = self.viewControllers[i];
-        vc.view.frame = CGRectMake(i*width, 0, width, self.scrollView.frame.size.height);
-    }
-    
-    self.scrollView.delegate = self;
+    [self changeScrollViewFrameTo:CGRectMake(0, baseY, width, self.view.frame.size.height-tabBarOccupyHeight-baseY)];
 }
 
 #pragma mark - scrollMenuView delegate
@@ -478,4 +461,33 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
     }
     [self.scrollMenuView setCurrentIndex:currentIndex animated:animated];
 }
+
+- (void)changeScrollViewFrameTo:(CGRect)frame
+{
+    //此时目的仅仅是修正下位置罢了
+    self.scrollView.delegate = nil;
+    
+    CGRect oldFrame = self.scrollView.frame;
+    
+    self.scrollView.frame = frame;
+    
+    if (!CGSizeEqualToSize(frame.size, oldFrame.size)) {
+        CGFloat width = frame.size.width;
+        
+        //设置其contentSize
+        self.scrollView.contentSize = CGSizeMake(width*self.viewControllers.count, self.scrollView.frame.size.height);
+        
+        //这里contentOffset可能会被重置到其他位置，所以需要修正一下到当前currentIndex
+        [self.scrollView setContentOffset:CGPointMake(self.scrollMenuView.currentIndex*self.scrollView.frame.size.width,0)];
+        
+        //设置子view的frame
+        for (int i = 0; i < self.viewControllers.count; i++) {
+            UIViewController *vc = self.viewControllers[i];
+            vc.view.frame = CGRectMake(i*width, 0, width, self.scrollView.frame.size.height);
+        }
+    }
+    
+    self.scrollView.delegate = self;
+}
+
 @end
