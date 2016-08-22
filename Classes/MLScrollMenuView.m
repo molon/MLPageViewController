@@ -8,8 +8,8 @@
 
 #import "MLScrollMenuView.h"
 
-CGFloat const MLScrollMenuViewCollectionViewCellXPadding = 10.0f;
-CGFloat const MLScrollMenuViewIndicatorViewHeight = 2.0f;
+CGFloat const DefaultMLScrollMenuViewCollectionViewCellXPadding = 10.0f;
+CGFloat const DefaultMLScrollMenuViewIndicatorViewHeight = 2.0f;
 CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 
 @interface _MLScrollMenuCollectionView : UICollectionView
@@ -116,6 +116,9 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     _currentTitleColor = [UIColor redColor];
     _currentIndicatorColor = [UIColor colorWithRed:0.996 green:0.827 blue:0.216 alpha:1.000];
     _indicatorBackgroundColor = [UIColor clearColor];
+    
+    _indicatorViewHeight = DefaultMLScrollMenuViewIndicatorViewHeight;
+    _collectionViewCellXPadding = DefaultMLScrollMenuViewCollectionViewCellXPadding;
     _currentIndicatorViewXPadding = DefaultMLScrollMenuViewIndicatorViewXPadding;
     _currentIndicatorViewOffset = UIOffsetZero;
     
@@ -150,7 +153,6 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
         _collectionView.scrollsToTop = NO;
         _collectionView.showsHorizontalScrollIndicator = NO;
         _collectionView.showsVerticalScrollIndicator = NO;
-        _collectionView.contentInset = UIEdgeInsetsMake(0, 0, MLScrollMenuViewIndicatorViewHeight, 0);
         
         [_collectionView registerClass:[_MLScrollMenuCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([_MLScrollMenuCollectionViewCell class])];
     }
@@ -190,25 +192,50 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 - (void)setDelegate:(id<MLScrollMenuViewDelegate>)delegate
 {
     _delegate = delegate;
-    [self reloadData];
+//    [self reloadData];
+    [self setNeedsLayout];
 }
 
 - (void)setTitleColor:(UIColor *)titleColor
 {
     _titleColor = titleColor;
-    [self reloadData];
+//    [self reloadData];
+    [self setNeedsLayout];
 }
 
 - (void)setCurrentTitleColor:(UIColor *)currentTitleColor
 {
     _currentTitleColor = currentTitleColor;
-    [self reloadData];
+//    [self reloadData];
+    [self setNeedsLayout];
 }
 
 - (void)setTitleFont:(UIFont *)titleFont
 {
     _titleFont = titleFont;
-    [self reloadData];
+//    [self reloadData];
+    [self setNeedsLayout];
+}
+
+- (void)setCollectionViewCellXPadding:(CGFloat)collectionViewCellXPadding
+{
+    _collectionViewCellXPadding = collectionViewCellXPadding;
+//    [self reloadData];
+    [self setNeedsLayout];
+}
+
+- (void)setIndicatorViewHeight:(CGFloat)indicatorViewHeight
+{
+    _indicatorViewHeight = indicatorViewHeight;
+//    [self reloadData];
+    [self setNeedsLayout];
+}
+
+- (void)setCurrentIndicatorViewXPadding:(CGFloat)currentIndicatorViewXPadding
+{
+    _currentIndicatorViewXPadding = currentIndicatorViewXPadding;
+//    [self reloadData];
+    [self setNeedsLayout];
 }
 
 - (void)setCurrentIndicatorColor:(UIColor *)indicatorColor
@@ -276,7 +303,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     [super layoutSubviews];
     
     self.backgroundImageView.frame = self.bounds;
-    self.indicatorBackgroundView.frame = CGRectMake(0, self.frame.size.height-MLScrollMenuViewIndicatorViewHeight+self.currentIndicatorViewOffset.vertical, self.frame.size.width, MLScrollMenuViewIndicatorViewHeight);
+    self.indicatorBackgroundView.frame = CGRectMake(0, self.frame.size.height-_indicatorViewHeight+self.currentIndicatorViewOffset.vertical, self.frame.size.width, _indicatorViewHeight);
     
     [self.collectionView.collectionViewLayout invalidateLayout];
     self.collectionView.frame = self.bounds;
@@ -356,8 +383,9 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     NSString *title = [self.delegate titleForIndex:index];
     CGSize size = [self singleLineSizeForFont:self.titleFont string:title];
     size.width += _currentIndicatorViewXPadding*2;
+    size.width = fmin(size.width, attributes.frame.size.width);
     
-    CGRect result = CGRectMake(attributes.frame.origin.x+(attributes.frame.size.width-size.width)/2, attributes.frame.size.height, size.width, MLScrollMenuViewIndicatorViewHeight);
+    CGRect result = CGRectMake(attributes.frame.origin.x+(attributes.frame.size.width-size.width)/2, attributes.frame.size.height-_indicatorViewHeight, size.width, _indicatorViewHeight);
     
     result = CGRectOffset(result, _currentIndicatorViewOffset.horizontal, _currentIndicatorViewOffset.vertical);
     return result;
@@ -397,7 +425,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     for (NSInteger i=0; i<count; i++) {
         NSString *title = [self.delegate titleForIndex:i];
         CGSize size = [self singleLineSizeForFont:self.titleFont string:title];
-        size.width += MLScrollMenuViewCollectionViewCellXPadding*2;
+        size.width += _collectionViewCellXPadding*2;
         [_cellWidths addObject:@(size.width)];
         totalWidth += size.width;
     }

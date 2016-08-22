@@ -21,8 +21,8 @@
 
 @end
 
-FOUNDATION_EXPORT CGFloat const MLScrollMenuViewCollectionViewCellXPadding;
-FOUNDATION_EXPORT CGFloat const MLScrollMenuViewIndicatorViewHeight;
+FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewCollectionViewCellXPadding;
+FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewHeight;
 FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
 
 @interface MLScrollMenuView : UIView
@@ -36,7 +36,10 @@ FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
 @property (nonatomic, strong) UIColor *currentIndicatorColor;
 @property (nonatomic, strong) UIColor *indicatorBackgroundColor;
 @property (nonatomic, strong, readonly) UIImageView *backgroundImageView;
-@property (nonatomic, assign) CGFloat currentIndicatorViewXPadding; //默认为5.0f，代表指示器的左右内边距(即为比文本长度多那么一点的那些距离)
+
+@property (nonatomic, assign) CGFloat indicatorViewHeight; //默认为DefaultMLScrollMenuViewIndicatorViewHeight，指示器的高度
+@property (nonatomic, assign) CGFloat collectionViewCellXPadding; //默认为DefaultMLScrollMenuViewCollectionViewCellXPadding，代表每个标题所占cell的左右内边距
+@property (nonatomic, assign) CGFloat currentIndicatorViewXPadding; //默认为DefaultMLScrollMenuViewIndicatorViewXPadding，代表指示器的左右内边距(即为比文本长度多那么一点的那些距离)
 @property (nonatomic, assign) UIOffset currentIndicatorViewOffset; //可自定义稍修正下indicatorView的位置
 
 /**
