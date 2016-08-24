@@ -81,13 +81,14 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
 {
     _autoAdjustTopAndBottomBlank = YES;
     _lastCurrentIndex = UndefinedPageIndexForMLPageViewController;
-    
-    _scrollMenuViewHeight = [self configureScrollMenuViewHeight];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    //内部可能需要参考self.view的frame，所以还是丢在这
+    _scrollMenuViewHeight = [self configureScrollMenuViewHeight];
+    
     self.automaticallyAdjustsScrollViewInsets = NO;
     
     [self.view addSubview:self.scrollMenuView];
