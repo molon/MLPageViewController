@@ -12,6 +12,40 @@ CGFloat const DefaultMLScrollMenuViewCollectionViewCellXPadding = 10.0f;
 CGFloat const DefaultMLScrollMenuViewIndicatorViewHeight = 2.0f;
 CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 
+@interface NSString(FitSizeForMLScrollMenu)
+
+- (CGSize)singleLineSizeForFont:(UIFont*)font;
+
+@end
+
+@implementation NSString(FitSizeForMLScrollMenu)
+
+- (CGSize)singleLineSizeForFont:(UIFont*)font
+{
+    NSAssert(font, @"singleHeightWithFont:方法必须传进font参数");
+    if (self.length<=0) {
+        return CGSizeZero;
+    }
+    
+    NSArray* lines = [self componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    NSString *firstLine = [lines firstObject];
+    if (firstLine.length<=0) {
+        return CGSizeZero;
+    }
+    
+    CGSize size = CGSizeZero;
+    NSDictionary *attribute = @{NSFontAttributeName: font};
+    size = [firstLine boundingRectWithSize:CGSizeMake(HUGE, HUGE)
+                                   options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:attribute context:nil].size;
+    
+    size.height = ceilf(size.height);
+    size.width = ceilf(size.width);
+    
+    return size;
+}
+
+@end
+
 @interface _MLScrollMenuCollectionView : UICollectionView
 
 @property (nonatomic, copy) void(^didReloadDataBlock)(_MLScrollMenuCollectionView *collectionView);
@@ -34,6 +68,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 @interface _MLScrollMenuCollectionViewCell : UICollectionViewCell
 
 @property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UILabel *extraSignLabel;
 
 @end
 
@@ -44,6 +79,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     self = [super initWithFrame:frame];
     if (self) {
         [self.contentView addSubview:self.titleLabel];
+        [self.contentView addSubview:self.extraSignLabel];
     }
     return self;
 }
@@ -63,12 +99,34 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     return _titleLabel;
 }
 
+- (UILabel *)extraSignLabel
+{
+    if (!_extraSignLabel) {
+        UILabel* label = [[UILabel alloc]init];
+        label.backgroundColor = [UIColor clearColor];
+        label.textColor = [UIColor blackColor];
+        label.font = [UIFont systemFontOfSize:14.0f];
+        
+        _extraSignLabel = label;
+    }
+    return _extraSignLabel;
+}
+
+
 #pragma mark - layout
 - (void)layoutSubviews
 {
     [super layoutSubviews];
     
-    self.titleLabel.frame = self.contentView.bounds;
+    //找到标题文字大小
+    CGSize titleSize = [self.titleLabel.text singleLineSizeForFont:self.titleLabel.font];
+    CGSize extraSignSize = [self.extraSignLabel.text singleLineSizeForFont:self.extraSignLabel.font];
+    
+    CGFloat width = self.contentView.frame.size.width;
+    CGFloat height = self.contentView.frame.size.height;
+    
+    self.titleLabel.frame = CGRectMake((width-titleSize.width)/2, (height-titleSize.height)/2, titleSize.width, titleSize.height);
+    self.extraSignLabel.frame = CGRectMake((self.titleLabel.frame.origin.x+self.titleLabel.frame.size.width)+1.0f, self.titleLabel.frame.origin.y-extraSignSize.height/2, extraSignSize.width, extraSignSize.height);
 }
 
 @end
@@ -112,6 +170,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 {
     self.exclusiveTouch = YES;
     _titleFont = [UIFont systemFontOfSize:14.0f];
+    _extraSignFont = [UIFont systemFontOfSize:10.0f];
     _titleColor = [UIColor blackColor];
     _currentTitleColor = [UIColor redColor];
     _currentIndicatorColor = [UIColor colorWithRed:0.996 green:0.827 blue:0.216 alpha:1.000];
@@ -192,50 +251,57 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 - (void)setDelegate:(id<MLScrollMenuViewDelegate>)delegate
 {
     _delegate = delegate;
-//    [self reloadData];
-    [self setNeedsLayout];
+
+    [self reload];
 }
 
 - (void)setTitleColor:(UIColor *)titleColor
 {
     _titleColor = titleColor;
-//    [self reloadData];
-    [self setNeedsLayout];
+
+    [self reload];
 }
 
 - (void)setCurrentTitleColor:(UIColor *)currentTitleColor
 {
     _currentTitleColor = currentTitleColor;
-//    [self reloadData];
-    [self setNeedsLayout];
+
+    [self reload];
 }
 
 - (void)setTitleFont:(UIFont *)titleFont
 {
     _titleFont = titleFont;
-//    [self reloadData];
-    [self setNeedsLayout];
+
+    [self reload];
+}
+
+- (void)setExtraSignFont:(UIFont *)extraSignFont
+{
+    _extraSignFont = extraSignFont;
+    
+    [self reload];
 }
 
 - (void)setCollectionViewCellXPadding:(CGFloat)collectionViewCellXPadding
 {
     _collectionViewCellXPadding = collectionViewCellXPadding;
-//    [self reloadData];
-    [self setNeedsLayout];
+
+    [self reload];
 }
 
 - (void)setIndicatorViewHeight:(CGFloat)indicatorViewHeight
 {
     _indicatorViewHeight = indicatorViewHeight;
-//    [self reloadData];
-    [self setNeedsLayout];
+
+    [self reload];
 }
 
 - (void)setCurrentIndicatorViewXPadding:(CGFloat)currentIndicatorViewXPadding
 {
     _currentIndicatorViewXPadding = currentIndicatorViewXPadding;
-//    [self reloadData];
-    [self setNeedsLayout];
+
+    [self reload];
 }
 
 - (void)setCurrentIndicatorColor:(UIColor *)indicatorColor
@@ -329,6 +395,11 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     cell.titleLabel.textColor = self.currentIndex==indexPath.row?self.currentTitleColor:self.titleColor;
     cell.titleLabel.text = title;
     
+    NSString *extraSign = [self.delegate extraSignForIndex:indexPath.row];
+    cell.extraSignLabel.font = self.extraSignFont;
+    cell.extraSignLabel.textColor = cell.titleLabel.textColor;
+    cell.extraSignLabel.text = extraSign;
+    
     return cell;
 }
 
@@ -350,30 +421,6 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 }
 
 #pragma mark - helper
-- (CGSize)singleLineSizeForFont:(UIFont*)font string:(NSString*)string
-{
-    NSAssert(font, @"singleHeightWithFont:方法必须传进font参数");
-    if (string.length<=0) {
-        return CGSizeZero;
-    }
-    
-    NSArray* lines = [string componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-    NSString *firstLine = [lines firstObject];
-    if (firstLine.length<=0) {
-        return CGSizeZero;
-    }
-    
-    CGSize size = CGSizeZero;
-    NSDictionary *attribute = @{NSFontAttributeName: font};
-    size = [firstLine boundingRectWithSize:CGSizeMake(HUGE, HUGE)
-                                options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:attribute context:nil].size;
-    
-    size.height = ceilf(size.height);
-    size.width = ceilf(size.width);
-    
-    return size;
-}
-
 - (CGRect)indicatorFrameWithIndex:(NSInteger)index
 {
     //找到对应cell的位置
@@ -381,7 +428,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     
     //找到title对应的宽度
     NSString *title = [self.delegate titleForIndex:index];
-    CGSize size = [self singleLineSizeForFont:self.titleFont string:title];
+    CGSize size = [title singleLineSizeForFont:self.titleFont];
     size.width += _currentIndicatorViewXPadding*2;
     size.width = fmin(size.width, attributes.frame.size.width);
     
@@ -412,10 +459,15 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     for (_MLScrollMenuCollectionViewCell *cell in [self.collectionView visibleCells]) {
         NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
         cell.titleLabel.textColor = (indexPath.row==currentIndex)?self.currentTitleColor:self.titleColor;
+        cell.extraSignLabel.textColor = cell.titleLabel.textColor;
     }
 }
 
 #pragma mark - outcall
+- (void)reload {
+    [self setNeedsLayout];
+}
+
 - (void)reloadData
 {
     NSInteger count = [self.delegate titleCount];
@@ -424,7 +476,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     CGFloat totalWidth = 0.0f;
     for (NSInteger i=0; i<count; i++) {
         NSString *title = [self.delegate titleForIndex:i];
-        CGSize size = [self singleLineSizeForFont:self.titleFont string:title];
+        CGSize size = [title singleLineSizeForFont:self.titleFont];
         size.width += _collectionViewCellXPadding*2;
         [_cellWidths addObject:@(size.width)];
         totalWidth += size.width;

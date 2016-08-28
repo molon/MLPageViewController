@@ -11,6 +11,7 @@
 @class MLScrollMenuView;
 @protocol MLScrollMenuViewDelegate <NSObject>
 
+- (NSString*)extraSignForIndex:(NSInteger)index;
 - (NSString*)titleForIndex:(NSInteger)index;
 - (NSInteger)titleCount;
 
@@ -31,6 +32,7 @@ FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
 
 //可以自定义的一些样式
 @property (nonatomic, strong) UIFont *titleFont;
+@property (nonatomic, strong) UIFont *extraSignFont;
 @property (nonatomic, strong) UIColor *titleColor;
 @property (nonatomic, strong) UIColor *currentTitleColor;
 @property (nonatomic, strong) UIColor *currentIndicatorColor;
@@ -59,5 +61,10 @@ FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
  *  显示去目标index的动画中间位置，注意在使用MLPageViewController时候一般无需关心
  */
 - (void)displayFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex ratio:(double)ratio;
+
+/**
+ reload
+ */
+- (void)reload;
 
 @end
