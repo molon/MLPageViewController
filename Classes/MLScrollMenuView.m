@@ -395,10 +395,12 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     cell.titleLabel.textColor = self.currentIndex==indexPath.row?self.currentTitleColor:self.titleColor;
     cell.titleLabel.text = title;
     
-    NSString *extraSign = [self.delegate extraSignForIndex:indexPath.row];
-    cell.extraSignLabel.font = self.extraSignFont;
-    cell.extraSignLabel.textColor = cell.titleLabel.textColor;
-    cell.extraSignLabel.text = extraSign;
+    if ([self.delegate respondsToSelector:@selector(extraSignForIndex:)]) {
+        NSString *extraSign = [self.delegate extraSignForIndex:indexPath.row];
+        cell.extraSignLabel.font = self.extraSignFont;
+        cell.extraSignLabel.textColor = cell.titleLabel.textColor;
+        cell.extraSignLabel.text = extraSign;
+    }
     
     return cell;
 }

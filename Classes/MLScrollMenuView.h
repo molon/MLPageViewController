@@ -11,7 +11,6 @@
 @class MLScrollMenuView;
 @protocol MLScrollMenuViewDelegate <NSObject>
 
-- (NSString*)extraSignForIndex:(NSInteger)index;
 - (NSString*)titleForIndex:(NSInteger)index;
 - (NSInteger)titleCount;
 
@@ -19,6 +18,7 @@
 
 @optional
 - (BOOL)shouldChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)toIndex scrollMenuView:(MLScrollMenuView*)scrollMenuView;
+- (NSString*)extraSignForIndex:(NSInteger)index;
 
 @end
 
