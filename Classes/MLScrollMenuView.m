@@ -402,6 +402,8 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
         cell.extraSignLabel.text = extraSign;
     }
     
+    [cell setNeedsLayout];
+    
     return cell;
 }
 
