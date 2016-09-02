@@ -343,10 +343,12 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     
     if (_changeCurrentIndexAnimated) {
         self.collectionView.userInteractionEnabled = NO;
+        _animating = YES;
         [UIView animateWithDuration:.25f animations:^{
             [self.collectionView setContentOffset:[self contentOffsetWidthIndex:currentIndex] animated:YES];
             self.indicatorView.frame = [self indicatorFrameWithIndex:currentIndex];
         } completion:^(BOOL finished) {
+            _animating = NO;
             self.collectionView.userInteractionEnabled = YES;
         }];
     }else{

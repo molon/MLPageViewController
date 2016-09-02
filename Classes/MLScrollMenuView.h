@@ -44,6 +44,8 @@ FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
 @property (nonatomic, assign) CGFloat currentIndicatorViewXPadding; //默认为DefaultMLScrollMenuViewIndicatorViewXPadding，代表指示器的左右内边距(即为比文本长度多那么一点的那些距离)
 @property (nonatomic, assign) UIOffset currentIndicatorViewOffset; //可自定义稍修正下indicatorView的位置
 
+@property (nonatomic, assign) BOOL animating; //处于动画中，其实也就是在setCurrentIndex:animated:YES 动画开始和完成之间为YES,其他时候都为NO
+
 /**
  *  滚动菜单的delegate，注意在使用MLPageViewController时候即为MLPageViewController不可修改。
  */
