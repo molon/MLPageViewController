@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 s.name         = "MLPageViewController"
-s.version      = "1.4.1"
+s.version      = "1.5.0"
 s.summary      = "MLPageViewController"
 
 s.homepage     = 'https://github.com/molon/MLPageViewController'
