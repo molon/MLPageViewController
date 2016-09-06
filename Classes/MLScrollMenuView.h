@@ -18,11 +18,12 @@
 
 @optional
 - (BOOL)shouldChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)toIndex scrollMenuView:(MLScrollMenuView*)scrollMenuView;
+- (NSString*)extraSignForIndex:(NSInteger)index;
 
 @end
 
-FOUNDATION_EXPORT CGFloat const MLScrollMenuViewCollectionViewCellXPadding;
-FOUNDATION_EXPORT CGFloat const MLScrollMenuViewIndicatorViewHeight;
+FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewCollectionViewCellXPadding;
+FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewHeight;
 FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
 
 @interface MLScrollMenuView : UIView
@@ -31,13 +32,19 @@ FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
 
 //可以自定义的一些样式
 @property (nonatomic, strong) UIFont *titleFont;
+@property (nonatomic, strong) UIFont *extraSignFont;
 @property (nonatomic, strong) UIColor *titleColor;
 @property (nonatomic, strong) UIColor *currentTitleColor;
 @property (nonatomic, strong) UIColor *currentIndicatorColor;
 @property (nonatomic, strong) UIColor *indicatorBackgroundColor;
 @property (nonatomic, strong, readonly) UIImageView *backgroundImageView;
-@property (nonatomic, assign) CGFloat currentIndicatorViewXPadding; //默认为5.0f，代表指示器的左右内边距(即为比文本长度多那么一点的那些距离)
+
+@property (nonatomic, assign) CGFloat indicatorViewHeight; //默认为DefaultMLScrollMenuViewIndicatorViewHeight，指示器的高度
+@property (nonatomic, assign) CGFloat collectionViewCellXPadding; //默认为DefaultMLScrollMenuViewCollectionViewCellXPadding，代表每个标题所占cell的左右内边距
+@property (nonatomic, assign) CGFloat currentIndicatorViewXPadding; //默认为DefaultMLScrollMenuViewIndicatorViewXPadding，代表指示器的左右内边距(即为比文本长度多那么一点的那些距离)
 @property (nonatomic, assign) UIOffset currentIndicatorViewOffset; //可自定义稍修正下indicatorView的位置
+
+@property (nonatomic, assign) BOOL animating; //处于动画中，其实也就是在setCurrentIndex:animated:YES 动画开始和完成之间为YES,其他时候都为NO
 
 /**
  *  滚动菜单的delegate，注意在使用MLPageViewController时候即为MLPageViewController不可修改。
@@ -56,5 +63,10 @@ FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
  *  显示去目标index的动画中间位置，注意在使用MLPageViewController时候一般无需关心
  */
 - (void)displayFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex ratio:(double)ratio;
+
+/**
+ reload
+ */
+- (void)reload;
 
 @end

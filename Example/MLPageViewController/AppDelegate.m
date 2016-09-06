@@ -23,23 +23,23 @@
     self.window.backgroundColor = [UIColor whiteColor];
     
     NSMutableArray *array = [NSMutableArray array];
-//    for (NSInteger i=0; i<3; i++) {
-//        TempViewController *temp = [TempViewController new];
-//        temp.title = [NSString stringWithFormat:@"%ld月",i];
-//        [array addObject:temp];
-//    }
+    for (NSInteger i=0; i<11; i++) {
+        TempViewController *temp = [TempViewController new];
+        temp.title = [NSString stringWithFormat:@"%ld月",i];
+        [array addObject:temp];
+    }
     
-    TempViewController *temp = [TempViewController new];
-    temp.title = @"0月";
-    [array addObject:temp];
-    
-    TempViewController *temp1 = [TempViewController new];
-    temp1.title = @"天南海北喵喵喵喵喵";
-    [array addObject:temp1];
-    
-    TempViewController *temp2 = [TempViewController new];
-    temp2.title = @"2月";
-    [array addObject:temp2];
+//    TempViewController *temp = [TempViewController new];
+//    temp.title = @"0月";
+//    [array addObject:temp];
+//    
+//    TempViewController *temp1 = [TempViewController new];
+//    temp1.title = @"天南海北喵喵喵喵喵";
+//    [array addObject:temp1];
+//    
+//    TempViewController *temp2 = [TempViewController new];
+//    temp2.title = @"2月";
+//    [array addObject:temp2];
     
     TempPageViewController *pageViewController = [[TempPageViewController alloc]initWithViewControllers:array];
     [pageViewController setDidChangeCurrentIndexBlock:^(NSInteger fromIndex, NSInteger toIndex, MLPageViewController *vc) {

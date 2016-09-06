@@ -55,6 +55,8 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
     BOOL _ignoreSetCurrentIndex;
     BOOL _dontChangeDisplayMenuView;
     NSMutableDictionary *_viewControllerAppearanceTransitionMap;
+    
+    CGFloat _scrollMenuViewHeight;
 }
 
 - (instancetype)initWithViewControllers:(NSArray *)viewControllers
@@ -84,6 +86,9 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    //内部可能需要参考self.view的frame，所以还是丢在这
+    _scrollMenuViewHeight = [self configureScrollMenuViewHeight];
+    
     self.automaticallyAdjustsScrollViewInsets = NO;
     
     [self.view addSubview:self.scrollMenuView];
@@ -112,7 +117,7 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
 - (MLScrollMenuView *)scrollMenuView
 {
     if (!_scrollMenuView) {
-        _scrollMenuView = [[MLScrollMenuView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, DefaultMLScrollMenuViewHeightForMLPageViewController)];
+        _scrollMenuView = [[MLScrollMenuView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, _scrollMenuViewHeight)];
         _scrollMenuView.delegate = self;
     }
     return _scrollMenuView;
@@ -121,7 +126,7 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
 - (_MLPageScrollView *)scrollView
 {
     if (!_scrollView) {
-        _scrollView = [[_MLPageScrollView alloc]initWithFrame:CGRectMake(0, DefaultMLScrollMenuViewHeightForMLPageViewController, self.view.frame.size.width, self.view.frame.size.height-DefaultMLScrollMenuViewHeightForMLPageViewController)];
+        _scrollView = [[_MLPageScrollView alloc]initWithFrame:CGRectMake(0, _scrollMenuViewHeight, self.view.frame.size.width, self.view.frame.size.height-_scrollMenuViewHeight)];
         _scrollView.scrollsToTop = NO;
         _scrollView.delegate = self;
         _scrollView.pagingEnabled = YES;
@@ -488,6 +493,11 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
     }
     
     self.scrollView.delegate = self;
+}
+
+#pragma mark - for orverride
+- (CGFloat)configureScrollMenuViewHeight {
+    return DefaultMLScrollMenuViewHeightForMLPageViewController;
 }
 
 @end

@@ -23,17 +23,12 @@
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"test" style:UIBarButtonItemStylePlain target:self action:@selector(test)];
     
-    self.scrollMenuView.titleColor = [UIColor blackColor];
-    self.scrollMenuView.currentTitleColor = [UIColor colorWithRed:0.996 green:0.918 blue:0.039 alpha:1.000];
+    self.scrollMenuView.titleColor = [UIColor colorWithWhite:0.529 alpha:1.000];
+    self.scrollMenuView.currentTitleColor = [UIColor colorWithRed:0.094 green:0.498 blue:0.941 alpha:1.000];
     self.scrollMenuView.currentIndicatorColor = self.scrollMenuView.currentTitleColor;
     self.scrollMenuView.indicatorBackgroundColor = [UIColor colorWithWhite:0.675 alpha:1.000];
-    self.scrollMenuView.backgroundColor = [UIColor colorWithRed:1.000 green:0.330 blue:0.394 alpha:1.000];
-    self.scrollMenuView.currentIndicatorViewXPadding = 8.0f;
-    
-    //test change height for scrollMenuView to less than DefaultMLScrollMenuViewHeightForMLPageViewController
-    CGRect frame = self.scrollMenuView.frame;
-    frame.size.height = 30.0f;
-    self.scrollMenuView.frame = frame;
+    self.scrollMenuView.backgroundColor = [UIColor whiteColor];
+    self.scrollMenuView.currentIndicatorViewXPadding = 160.5f;
     
     //test setting the init index
     [self setCurrentIndex:2 animated:NO];
@@ -45,4 +40,7 @@
     [self setCurrentIndex:1 animated:YES];
 }
 
+- (CGFloat)configureScrollMenuViewHeight {
+    return 47.0f;
+}
 @end
