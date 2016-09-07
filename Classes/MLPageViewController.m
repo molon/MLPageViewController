@@ -131,7 +131,6 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
         _scrollView.delegate = self;
         _scrollView.pagingEnabled = YES;
         _scrollView.showsHorizontalScrollIndicator = NO;
-        _scrollView.directionalLockEnabled = YES;
     }
     return _scrollView;
 }
