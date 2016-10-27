@@ -11,6 +11,7 @@
 
 FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewHeightForMLPageViewController;
 
+//TODO: 现今的childViewControllers会不断添加移除，最终只保留当前显示的那个页面，这似乎不太合理，一般不影响使用，后续优化。
 @interface MLPageViewController : MLContainerControllerForMLPage
 
 /**

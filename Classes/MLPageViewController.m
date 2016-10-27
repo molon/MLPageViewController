@@ -11,6 +11,12 @@
 CGFloat const DefaultMLScrollMenuViewHeightForMLPageViewController = 40.0f;
 NSInteger const UndefinedPageIndexForMLPageViewController = -1;
 
+typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
+    _MLPageScrollDirectionUnknown = 0,
+    _MLPageScrollDirectionLeft,
+    _MLPageScrollDirectionRight,
+};
+
 @interface _MLPageScrollView : UIScrollView
 
 @end
@@ -52,6 +58,7 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
 {
     NSInteger _lastCurrentIndex;
     CGFloat _lastContentOffsetX;
+    _MLPageScrollDirection _lastScrollDirection;
     BOOL _ignoreSetCurrentIndex;
     BOOL _dontChangeDisplayMenuView;
     NSMutableDictionary *_viewControllerAppearanceTransitionMap;
@@ -108,7 +115,7 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
         [self addChildViewController:vc];
         [self.scrollView addSubview:vc.view];
         [vc didMoveToParentViewController:self];
-    
+        
         _lastCurrentIndex = 0;
     }
 }
@@ -131,6 +138,11 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
         _scrollView.delegate = self;
         _scrollView.pagingEnabled = YES;
         _scrollView.showsHorizontalScrollIndicator = NO;
+        _scrollView.directionalLockEnabled = YES;
+        //TODO: iOS7下 下拉不是太好用，以后需要优化下，现在先禁掉
+        if ([UIDevice currentDevice].systemVersion.doubleValue<8.0f) {
+            _scrollView.scrollEnabled = NO;
+        }
     }
     return _scrollView;
 }
@@ -288,6 +300,7 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
     if (_lastContentOffsetX==scrollView.contentOffset.x) {return;}
     BOOL isScrollToRight = _lastContentOffsetX<scrollView.contentOffset.x;
     _lastContentOffsetX = scrollView.contentOffset.x;
+    _lastScrollDirection = isScrollToRight?_MLPageScrollDirectionRight:_MLPageScrollDirectionLeft;
     
     NSInteger leftIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
     if (leftIndex<0||leftIndex+1>self.viewControllers.count-1) {
@@ -369,46 +382,49 @@ NSInteger const UndefinedPageIndexForMLPageViewController = -1;
     [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
     _ignoreSetCurrentIndex = NO;
     
-    if (self.childViewControllers.count>1) { //这个是判断当前是否在边界往无VC的方向做无效拖动的时候
-        UIViewController *currentVC = self.viewControllers[currentIndex];
-        
-        if (self.view.window) {
-            if (![self lastAppearanceTransitionForViewController:currentVC]) {
-                [currentVC beginAppearanceTransition:YES animated:YES];
-                [self setLastAppearanceTransition:YES forViewController:currentVC];
-            }
-        }
-        
-        if (self.view.window) {
-            [currentVC endAppearanceTransition];
-        }
-        
-        [currentVC didMoveToParentViewController:self];
-        
-        for (UIViewController *vc in self.childViewControllers) {
-            if ([vc isEqual:currentVC]) {
-                continue;
-            }
-            if ([vc.view.superview isEqual:self.scrollView]) {
-                
-                if (self.view.window) {
-                    if ([self lastAppearanceTransitionForViewController:vc]) {
-                        [vc beginAppearanceTransition:NO animated:YES];
-                        [self setLastAppearanceTransition:NO forViewController:vc];
-                    }
-                }
-                
-                [vc.view removeFromSuperview];
-                [vc removeFromParentViewController];
-                
-                if (self.view.window) {
-                    [vc endAppearanceTransition];
-                }
-            }
-        }
-        
-        [self updateCurrentIndexTo:currentIndex];
+    if ((currentIndex==0&&_lastScrollDirection==_MLPageScrollDirectionRight)||
+        (currentIndex==self.viewControllers.count-1&&_lastScrollDirection==_MLPageScrollDirectionLeft)) {
+        return;
     }
+    
+    UIViewController *currentVC = self.viewControllers[currentIndex];
+    
+    if (self.view.window) {
+        if (![self lastAppearanceTransitionForViewController:currentVC]) {
+            [currentVC beginAppearanceTransition:YES animated:YES];
+            [self setLastAppearanceTransition:YES forViewController:currentVC];
+        }
+    }
+    
+    if (self.view.window) {
+        [currentVC endAppearanceTransition];
+    }
+    
+    [currentVC didMoveToParentViewController:self];
+    
+    for (UIViewController *vc in self.childViewControllers) {
+        if ([vc isEqual:currentVC]) {
+            continue;
+        }
+        if ([vc.view.superview isEqual:self.scrollView]) {
+            
+            if (self.view.window) {
+                if ([self lastAppearanceTransitionForViewController:vc]) {
+                    [vc beginAppearanceTransition:NO animated:YES];
+                    [self setLastAppearanceTransition:NO forViewController:vc];
+                }
+            }
+            
+            [vc.view removeFromSuperview];
+            [vc removeFromParentViewController];
+            
+            if (self.view.window) {
+                [vc endAppearanceTransition];
+            }
+        }
+    }
+    
+    [self updateCurrentIndexTo:currentIndex];
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
