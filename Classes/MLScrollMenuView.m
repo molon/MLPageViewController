@@ -14,13 +14,13 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 
 @interface NSString(FitSizeForMLScrollMenu)
 
-- (CGSize)singleLineSizeForFont:(UIFont*)font;
+- (CGSize)_MLScrollMenu_singleLineSizeForFont:(UIFont*)font;
 
 @end
 
 @implementation NSString(FitSizeForMLScrollMenu)
 
-- (CGSize)singleLineSizeForFont:(UIFont*)font
+- (CGSize)_MLScrollMenu_singleLineSizeForFont:(UIFont*)font
 {
     NSAssert(font, @"singleHeightWithFont:方法必须传进font参数");
     if (self.length<=0) {
@@ -119,8 +119,8 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     [super layoutSubviews];
     
     //找到标题文字大小
-    CGSize titleSize = [self.titleLabel.text singleLineSizeForFont:self.titleLabel.font];
-    CGSize extraSignSize = [self.extraSignLabel.text singleLineSizeForFont:self.extraSignLabel.font];
+    CGSize titleSize = [self.titleLabel.text _MLScrollMenu_singleLineSizeForFont:self.titleLabel.font];
+    CGSize extraSignSize = [self.extraSignLabel.text _MLScrollMenu_singleLineSizeForFont:self.extraSignLabel.font];
     
     CGFloat width = self.contentView.frame.size.width;
     CGFloat height = self.contentView.frame.size.height;
@@ -434,7 +434,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     
     //找到title对应的宽度
     NSString *title = [self.delegate titleForIndex:index];
-    CGSize size = [title singleLineSizeForFont:self.titleFont];
+    CGSize size = [title _MLScrollMenu_singleLineSizeForFont:self.titleFont];
     size.width += _currentIndicatorViewXPadding*2;
     size.width = fmin(size.width, attributes.frame.size.width);
     
@@ -482,7 +482,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     CGFloat totalWidth = 0.0f;
     for (NSInteger i=0; i<count; i++) {
         NSString *title = [self.delegate titleForIndex:i];
-        CGSize size = [title singleLineSizeForFont:self.titleFont];
+        CGSize size = [title _MLScrollMenu_singleLineSizeForFont:self.titleFont];
         size.width += _collectionViewCellXPadding*2;
         [_cellWidths addObject:@(size.width)];
         totalWidth += size.width;
