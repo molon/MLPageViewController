@@ -242,8 +242,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
         [oldCurrentVC willMoveToParentViewController:nil];
         
         if (self.view.window) {
-            [oldCurrentVC beginAppearanceTransition:NO animated:NO];
-            [self setLastAppearanceTransition:NO forViewController:oldCurrentVC];
+            [self beginAppearanceTransition:NO animated:NO forViewController:oldCurrentVC];
         }
         
         [self addChildViewController:newCurrentVC];
@@ -252,7 +251,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
             [self.scrollView addSubview:newCurrentVC.view];
         }
         if (self.view.window) {
-            [newCurrentVC beginAppearanceTransition:YES animated:NO];
+            [self beginAppearanceTransition:YES animated:NO forViewController:newCurrentVC];
         }
         
         //只改变contentOffset
@@ -272,8 +271,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
             if ([vc.view.superview isEqual:self.scrollView]) {
                 if (self.view.window) {
                     if ([self lastAppearanceTransitionForViewController:vc]==_MLPageAppearanceTransitionYES) {
-                        [vc beginAppearanceTransition:NO animated:NO];
-                        [self setLastAppearanceTransition:_MLPageAppearanceTransitionNO forViewController:vc];
+                        [self beginAppearanceTransition:NO animated:NO forViewController:vc];
                     }
                 }
                 [vc.view removeFromSuperview];
@@ -344,8 +342,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
         //将要remove
         [currentVC willMoveToParentViewController:nil];
         if (self.view.window) {
-            [currentVC beginAppearanceTransition:NO animated:YES];
-            [self setLastAppearanceTransition:NO forViewController:currentVC];
+            [self beginAppearanceTransition:NO animated:YES forViewController:currentVC];
         }
         
         //将要add
@@ -355,8 +352,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
             [self.scrollView addSubview:targetVC.view];
         }
         if (self.view.window) {
-            [targetVC beginAppearanceTransition:YES animated:YES];
-            [self setLastAppearanceTransition:YES forViewController:targetVC];
+            [self beginAppearanceTransition:YES animated:YES forViewController:targetVC];
         }
     }
 }
@@ -397,8 +393,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
     if (self.view.window) {
         //有可能之前是willDisappear状态
         if ([self lastAppearanceTransitionForViewController:currentVC]==_MLPageAppearanceTransitionNO) {
-            [currentVC beginAppearanceTransition:YES animated:YES];
-            [self setLastAppearanceTransition:_MLPageAppearanceTransitionYES forViewController:currentVC];
+            [self beginAppearanceTransition:YES animated:YES forViewController:currentVC];
         }
     }
     
@@ -416,8 +411,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
             
             if (self.view.window) {
                 if ([self lastAppearanceTransitionForViewController:vc]==_MLPageAppearanceTransitionYES) {
-                    [vc beginAppearanceTransition:NO animated:YES];
-                    [self setLastAppearanceTransition:_MLPageAppearanceTransitionNO forViewController:vc];
+                    [self beginAppearanceTransition:NO animated:YES forViewController:vc];
                 }
             }
             
@@ -452,6 +446,11 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
 }
 
 #pragma mark - helper
+- (void)beginAppearanceTransition:(BOOL)isAppearing animated:(BOOL)animated forViewController:(UIViewController*)vc {
+    [vc beginAppearanceTransition:isAppearing animated:animated];
+    [self setLastAppearanceTransition:isAppearing?_MLPageAppearanceTransitionYES:_MLPageAppearanceTransitionNO forViewController:vc];
+}
+
 - (void)endAppearanceTransitionForViewController:(UIViewController*)vc {
     [vc endAppearanceTransition];
     [self setLastAppearanceTransition:_MLPageAppearanceTransitionDone forViewController:vc];
