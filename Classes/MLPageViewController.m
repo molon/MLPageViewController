@@ -85,6 +85,8 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
 
 - (void)setUp
 {
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    
     _autoAdjustTopAndBottomBlank = YES;
     _lastCurrentIndex = UndefinedPageIndexForMLPageViewController;
 }
@@ -94,8 +96,6 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
     // Do any additional setup after loading the view.
     //内部可能需要参考self.view的frame，所以还是丢在这
     _scrollMenuViewHeight = [self configureScrollMenuViewHeight];
-    
-    self.automaticallyAdjustsScrollViewInsets = NO;
     
     [self.view addSubview:self.scrollMenuView];
     [self.view addSubview:self.scrollView];
@@ -222,44 +222,44 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
     return ((UIViewController*)self.viewControllers[index]).title;
 }
 
-- (void)didChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)currentIndex animated:(BOOL)animated scrollMenuView:(MLScrollMenuView *)scrollMenuView
+- (void)didChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)targetIndex animated:(BOOL)animated scrollMenuView:(MLScrollMenuView *)scrollMenuView
 {
     if (!_ignoreSetCurrentIndex) {
         //直接点击过来的和手动拖的完全分隔开，不用一回事
-        NSInteger oldCurrentIndex = floor(self.scrollView.contentOffset.x / self.scrollView.frame.size.width);
+        NSInteger currentIndex = floor(self.scrollView.contentOffset.x / self.scrollView.frame.size.width);
         
         //没window时候还没显示，不需要滚动过去，直接跳过去即可
         if (!self.dontScrollWhenDirectClickMenu&&animated&&self.view.window) {
             _dontChangeDisplayMenuView = YES;
             self.scrollView.userInteractionEnabled = NO;
-            [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0) animated:YES];
+            [self.scrollView setContentOffset:CGPointMake(targetIndex * self.scrollView.frame.size.width, 0) animated:YES];
             return;
         }
         
         //以前的disappear，新的appear
-        UIViewController *oldCurrentVC = self.viewControllers[oldCurrentIndex];
-        UIViewController *newCurrentVC = self.viewControllers[currentIndex];
+        UIViewController *currentVC = self.viewControllers[currentIndex];
+        UIViewController *targetVC = self.viewControllers[targetIndex];
         
-        [oldCurrentVC willMoveToParentViewController:nil];
-        [self beginAppearanceTransition:NO animated:NO forViewController:oldCurrentVC];
+        [currentVC willMoveToParentViewController:nil];
+        [self beginAppearanceTransition:NO animated:NO forViewController:currentVC];
         
-        [self addChildViewController:newCurrentVC];
-        if (![newCurrentVC.view.superview isEqual:self.scrollView]) {
-            [newCurrentVC.view removeFromSuperview];
-            [self.scrollView addSubview:newCurrentVC.view];
+        [self addChildViewController:targetVC];
+        if (![targetVC.view.superview isEqual:self.scrollView]) {
+            [targetVC.view removeFromSuperview];
+            [self.scrollView addSubview:targetVC.view];
         }
-        [self beginAppearanceTransition:YES animated:NO forViewController:newCurrentVC];
+        [self beginAppearanceTransition:YES animated:NO forViewController:targetVC];
         
         //只改变contentOffset
         self.scrollView.delegate = nil;
-        [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0)];
+        [self.scrollView setContentOffset:CGPointMake(targetIndex * self.scrollView.frame.size.width, 0)];
         self.scrollView.delegate = self;
         
-        [self endAppearanceTransitionForViewController:newCurrentVC];
-        [newCurrentVC didMoveToParentViewController:self];
+        [self endAppearanceTransitionForViewController:targetVC];
+        [targetVC didMoveToParentViewController:self];
         
         for (UIViewController *vc in self.childViewControllers) {
-            if ([vc isEqual:newCurrentVC]) {
+            if ([vc isEqual:targetVC]) {
                 continue;
             }
             if ([vc.view.superview isEqual:self.scrollView]) {
@@ -272,7 +272,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
             }
         }
         
-        [self updateCurrentIndexTo:currentIndex];
+        [self updateCurrentIndexTo:targetIndex];
     }
 }
 
@@ -503,6 +503,107 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
 #pragma mark - for orverride
 - (CGFloat)configureScrollMenuViewHeight {
     return DefaultMLScrollMenuViewHeightForMLPageViewController;
+}
+
+#pragma mark - container view controller
+- (BOOL)shouldAutomaticallyForwardAppearanceMethods{
+    return NO;
+}
+
+- (BOOL)shouldAutomaticallyForwardRotationMethods{
+    return NO;
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    NSArray *viewControllers = [self childViewControllersWithAppearanceCallbackAutoForward];
+    for (UIViewController *viewController in viewControllers) {
+        [viewController beginAppearanceTransition:YES animated:animated];
+    }
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    
+    NSArray *viewControllers = [self childViewControllersWithAppearanceCallbackAutoForward];
+    for (UIViewController *viewController in viewControllers) {
+        [viewController endAppearanceTransition];
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    
+    NSArray *viewControllers = [self childViewControllersWithAppearanceCallbackAutoForward];
+    for (UIViewController *viewController in viewControllers) {
+        [viewController beginAppearanceTransition:NO animated:animated];
+    }
+}
+
+- (void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    
+    NSArray *viewControllers = [self childViewControllersWithAppearanceCallbackAutoForward];
+    for (UIViewController *viewController in viewControllers) {
+        [viewController endAppearanceTransition];
+    }
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration{
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    
+    NSArray *viewControllers = [self childViewControllersWithRotationCallbackAutoForward];
+    for (UIViewController *viewController in viewControllers) {
+        [viewController willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration{
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    
+    NSArray *viewControllers = [self childViewControllersWithRotationCallbackAutoForward];
+    for (UIViewController *viewController in viewControllers) {
+        [viewController willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation{
+    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    
+    NSArray *viewControllers = [self childViewControllersWithRotationCallbackAutoForward];
+    for (UIViewController *viewController in viewControllers) {
+        [viewController didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    }
+}
+
+- (BOOL)shouldAutorotate{
+    NSArray *viewControllers = [self childViewControllersWithRotationCallbackAutoForward];
+    BOOL shouldAutorotate = YES;
+    for (UIViewController *viewController in viewControllers) {
+        shouldAutorotate = shouldAutorotate &&  [viewController shouldAutorotate];
+    }
+    
+    return shouldAutorotate;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations{
+    NSUInteger supportedInterfaceOrientations = UIInterfaceOrientationMaskAll;
+    
+    NSArray *viewControllers = [self childViewControllersWithRotationCallbackAutoForward];
+    for (UIViewController *viewController in viewControllers) {
+        supportedInterfaceOrientations = supportedInterfaceOrientations & [viewController supportedInterfaceOrientations];
+    }
+    
+    return supportedInterfaceOrientations;
+}
+
+- (NSArray *)childViewControllersWithAppearanceCallbackAutoForward{
+    return self.childViewControllers;
+}
+
+- (NSArray *)childViewControllersWithRotationCallbackAutoForward{
+    return self.childViewControllers;
 }
 
 @end

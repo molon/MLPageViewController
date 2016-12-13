@@ -14,7 +14,7 @@
 - (NSString*)titleForIndex:(NSInteger)index;
 - (NSInteger)titleCount;
 
-- (void)didChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)currentIndex animated:(BOOL)animated scrollMenuView:(MLScrollMenuView*)scrollMenuView;
+- (void)didChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)toIndex animated:(BOOL)animated scrollMenuView:(MLScrollMenuView*)scrollMenuView;
 
 @optional
 - (BOOL)shouldChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)toIndex scrollMenuView:(MLScrollMenuView*)scrollMenuView;
