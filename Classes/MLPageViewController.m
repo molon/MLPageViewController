@@ -379,7 +379,6 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
         [self beginAppearanceTransition:YES animated:YES forViewController:currentVC];
     }
     [self endAppearanceTransitionForViewController:currentVC];
-    
     [currentVC didMoveToParentViewController:self];
     
     for (UIViewController *vc in self.childViewControllers) {
@@ -419,11 +418,17 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
 
 #pragma mark - helper
 - (void)beginAppearanceTransition:(BOOL)isAppearing animated:(BOOL)animated forViewController:(UIViewController*)vc {
+    if (!self.view.window) {
+        return;
+    }
     [vc beginAppearanceTransition:isAppearing animated:animated];
     [self setLastAppearanceTransition:isAppearing?_MLPageAppearanceTransitionYES:_MLPageAppearanceTransitionNO forViewController:vc];
 }
 
 - (void)endAppearanceTransitionForViewController:(UIViewController*)vc {
+    if (!self.view.window) {
+        return;
+    }
     [vc endAppearanceTransition];
     [self setLastAppearanceTransition:_MLPageAppearanceTransitionDone forViewController:vc];
 }
