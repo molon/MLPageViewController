@@ -298,9 +298,9 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if (_lastContentOffsetX==scrollView.contentOffset.x) {return;}
-    BOOL isScrollToRight = _lastContentOffsetX<scrollView.contentOffset.x;
+    BOOL isScrollToLeft = _lastContentOffsetX<scrollView.contentOffset.x;
     _lastContentOffsetX = scrollView.contentOffset.x;
-    _lastScrollDirection = isScrollToRight?_MLPageScrollDirectionRight:_MLPageScrollDirectionLeft;
+    _lastScrollDirection = isScrollToLeft?_MLPageScrollDirectionLeft:_MLPageScrollDirectionRight;
     
     NSInteger leftIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
     if (leftIndex<0||leftIndex+1>self.viewControllers.count-1) {
@@ -321,8 +321,8 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
     }
     
     //处理view appear
-    NSInteger targetIndex = isScrollToRight?rightIndex:leftIndex;
-    NSInteger currentIndex = isScrollToRight?leftIndex:rightIndex;
+    NSInteger targetIndex = isScrollToLeft?rightIndex:leftIndex;
+    NSInteger currentIndex = isScrollToLeft?leftIndex:rightIndex;
     
     //目的是找到目标vc，并且其没add就add，没appear就appear，至于其他的非current就diddisappear，current的没willdisappear就willdisappear
     UIViewController *currentVC = self.viewControllers[currentIndex];
@@ -382,9 +382,12 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
     [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
     _ignoreSetCurrentIndex = NO;
     
-    if ((currentIndex==0&&_lastScrollDirection==_MLPageScrollDirectionRight)||
-        (currentIndex==self.viewControllers.count-1&&_lastScrollDirection==_MLPageScrollDirectionLeft)) {
-        return;
+    if (_lastCurrentIndex==currentIndex) {
+        //保证在边界index时做无用拖动时候不处理
+        if((currentIndex==0&&_lastScrollDirection==_MLPageScrollDirectionLeft)||
+           (currentIndex==self.viewControllers.count-1&&_lastScrollDirection==_MLPageScrollDirectionRight)) {
+            return;
+        }
     }
     
     UIViewController *currentVC = self.viewControllers[currentIndex];
