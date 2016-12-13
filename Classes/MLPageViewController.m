@@ -11,10 +11,10 @@
 CGFloat const DefaultMLScrollMenuViewHeightForMLPageViewController = 40.0f;
 NSInteger const UndefinedPageIndexForMLPageViewController = -1;
 
-typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
-    _MLPageScrollDirectionUnknown = 0,
-    _MLPageScrollDirectionLeft,
-    _MLPageScrollDirectionRight,
+typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
+    _MLPageAppearanceTransitionNO = 0,
+    _MLPageAppearanceTransitionYES,
+    _MLPageAppearanceTransitionDone,
 };
 
 @interface _MLPageScrollView : UIScrollView
@@ -58,7 +58,6 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
 {
     NSInteger _lastCurrentIndex;
     CGFloat _lastContentOffsetX;
-    _MLPageScrollDirection _lastScrollDirection;
     BOOL _ignoreSetCurrentIndex;
     BOOL _dontChangeDisplayMenuView;
     NSMutableDictionary *_viewControllerAppearanceTransitionMap;
@@ -262,7 +261,7 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
         self.scrollView.delegate = self;
         
         if (self.view.window) {
-            [newCurrentVC endAppearanceTransition];
+            [self endAppearanceTransitionForViewController:newCurrentVC];
         }
         [newCurrentVC didMoveToParentViewController:self];
         
@@ -272,15 +271,15 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
             }
             if ([vc.view.superview isEqual:self.scrollView]) {
                 if (self.view.window) {
-                    if ([self lastAppearanceTransitionForViewController:vc]) {
+                    if ([self lastAppearanceTransitionForViewController:vc]==_MLPageAppearanceTransitionYES) {
                         [vc beginAppearanceTransition:NO animated:NO];
-                        [self setLastAppearanceTransition:NO forViewController:vc];
+                        [self setLastAppearanceTransition:_MLPageAppearanceTransitionNO forViewController:vc];
                     }
                 }
                 [vc.view removeFromSuperview];
                 [vc removeFromParentViewController];
                 if (self.view.window) {
-                    [vc endAppearanceTransition];
+                    [self endAppearanceTransitionForViewController:vc];
                 }
             }
         }
@@ -300,7 +299,6 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
     if (_lastContentOffsetX==scrollView.contentOffset.x) {return;}
     BOOL isScrollToLeft = _lastContentOffsetX<scrollView.contentOffset.x;
     _lastContentOffsetX = scrollView.contentOffset.x;
-    _lastScrollDirection = isScrollToLeft?_MLPageScrollDirectionLeft:_MLPageScrollDirectionRight;
     
     NSInteger leftIndex = floor(scrollView.contentOffset.x / scrollView.frame.size.width);
     if (leftIndex<0||leftIndex+1>self.viewControllers.count-1) {
@@ -338,7 +336,7 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
                 [vc.view removeFromSuperview];
                 [vc removeFromParentViewController];
                 if (self.view.window) {
-                    [vc endAppearanceTransition];
+                    [self endAppearanceTransitionForViewController:vc];
                 }
             }
         }
@@ -378,29 +376,34 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
         return;
     }
     
-    _ignoreSetCurrentIndex = YES;
-    [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
-    _ignoreSetCurrentIndex = NO;
+    UIViewController *currentVC = self.viewControllers[currentIndex];
     
+    //如果没有前置行为，这里的当然也就无效了
+    if ([self lastAppearanceTransitionForViewController:currentVC]==_MLPageAppearanceTransitionDone) {
+        return;
+    }
     if (_lastCurrentIndex==currentIndex) {
         //保证在边界index时做无用拖动时候不处理
-        if((currentIndex==0&&_lastScrollDirection==_MLPageScrollDirectionLeft)||
-           (currentIndex==self.viewControllers.count-1&&_lastScrollDirection==_MLPageScrollDirectionRight)) {
+        if(currentIndex==0||currentIndex==self.viewControllers.count-1) {
             return;
         }
     }
     
-    UIViewController *currentVC = self.viewControllers[currentIndex];
+    //设置当前index
+    _ignoreSetCurrentIndex = YES;
+    [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
+    _ignoreSetCurrentIndex = NO;
     
     if (self.view.window) {
-        if (![self lastAppearanceTransitionForViewController:currentVC]) {
+        //有可能之前是willDisappear状态
+        if ([self lastAppearanceTransitionForViewController:currentVC]==_MLPageAppearanceTransitionNO) {
             [currentVC beginAppearanceTransition:YES animated:YES];
-            [self setLastAppearanceTransition:YES forViewController:currentVC];
+            [self setLastAppearanceTransition:_MLPageAppearanceTransitionYES forViewController:currentVC];
         }
     }
     
     if (self.view.window) {
-        [currentVC endAppearanceTransition];
+        [self endAppearanceTransitionForViewController:currentVC];
     }
     
     [currentVC didMoveToParentViewController:self];
@@ -412,9 +415,9 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
         if ([vc.view.superview isEqual:self.scrollView]) {
             
             if (self.view.window) {
-                if ([self lastAppearanceTransitionForViewController:vc]) {
+                if ([self lastAppearanceTransitionForViewController:vc]==_MLPageAppearanceTransitionYES) {
                     [vc beginAppearanceTransition:NO animated:YES];
-                    [self setLastAppearanceTransition:NO forViewController:vc];
+                    [self setLastAppearanceTransition:_MLPageAppearanceTransitionNO forViewController:vc];
                 }
             }
             
@@ -422,7 +425,7 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
             [vc removeFromParentViewController];
             
             if (self.view.window) {
-                [vc endAppearanceTransition];
+                [self endAppearanceTransitionForViewController:vc];
             }
         }
     }
@@ -449,14 +452,22 @@ typedef NS_ENUM(NSUInteger, _MLPageScrollDirection) {
 }
 
 #pragma mark - helper
-//出发didappear和diddisappear
-- (BOOL)lastAppearanceTransitionForViewController:(UIViewController*)vc
-{
-    NSString *pointerString = [NSString stringWithFormat:@"%p",vc];
-    return [_viewControllerAppearanceTransitionMap[pointerString] boolValue];
+- (void)endAppearanceTransitionForViewController:(UIViewController*)vc {
+    [vc endAppearanceTransition];
+    [self setLastAppearanceTransition:_MLPageAppearanceTransitionDone forViewController:vc];
 }
 
-- (void)setLastAppearanceTransition:(BOOL)appearanceTransition forViewController:(UIViewController*)vc
+- (_MLPageAppearanceTransition)lastAppearanceTransitionForViewController:(UIViewController*)vc
+{
+    NSString *pointerString = [NSString stringWithFormat:@"%p",vc];
+    id value = _viewControllerAppearanceTransitionMap[pointerString];
+    if (!value) {
+        return _MLPageAppearanceTransitionDone;
+    }
+    return [value integerValue];
+}
+
+- (void)setLastAppearanceTransition:(_MLPageAppearanceTransition)appearanceTransition forViewController:(UIViewController*)vc
 {
     NSString *pointerString = [NSString stringWithFormat:@"%p",vc];
     _viewControllerAppearanceTransitionMap[pointerString] = @(appearanceTransition);
