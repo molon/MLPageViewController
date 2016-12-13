@@ -228,6 +228,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
         //直接点击过来的和手动拖的完全分隔开，不用一回事
         NSInteger oldCurrentIndex = floor(self.scrollView.contentOffset.x / self.scrollView.frame.size.width);
         
+        //没window时候还没显示，不需要滚动过去，直接跳过去即可
         if (!self.dontScrollWhenDirectClickMenu&&animated&&self.view.window) {
             _dontChangeDisplayMenuView = YES;
             self.scrollView.userInteractionEnabled = NO;
@@ -240,28 +241,21 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
         UIViewController *newCurrentVC = self.viewControllers[currentIndex];
         
         [oldCurrentVC willMoveToParentViewController:nil];
-        
-        if (self.view.window) {
-            [self beginAppearanceTransition:NO animated:NO forViewController:oldCurrentVC];
-        }
+        [self beginAppearanceTransition:NO animated:NO forViewController:oldCurrentVC];
         
         [self addChildViewController:newCurrentVC];
         if (![newCurrentVC.view.superview isEqual:self.scrollView]) {
             [newCurrentVC.view removeFromSuperview];
             [self.scrollView addSubview:newCurrentVC.view];
         }
-        if (self.view.window) {
-            [self beginAppearanceTransition:YES animated:NO forViewController:newCurrentVC];
-        }
+        [self beginAppearanceTransition:YES animated:NO forViewController:newCurrentVC];
         
         //只改变contentOffset
         self.scrollView.delegate = nil;
         [self.scrollView setContentOffset:CGPointMake(currentIndex * self.scrollView.frame.size.width, 0)];
         self.scrollView.delegate = self;
         
-        if (self.view.window) {
-            [self endAppearanceTransitionForViewController:newCurrentVC];
-        }
+        [self endAppearanceTransitionForViewController:newCurrentVC];
         [newCurrentVC didMoveToParentViewController:self];
         
         for (UIViewController *vc in self.childViewControllers) {
@@ -269,16 +263,12 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
                 continue;
             }
             if ([vc.view.superview isEqual:self.scrollView]) {
-                if (self.view.window) {
-                    if ([self lastAppearanceTransitionForViewController:vc]==_MLPageAppearanceTransitionYES) {
-                        [self beginAppearanceTransition:NO animated:NO forViewController:vc];
-                    }
+                if ([self lastAppearanceTransitionForViewController:vc]==_MLPageAppearanceTransitionYES) {
+                    [self beginAppearanceTransition:NO animated:NO forViewController:vc];
                 }
                 [vc.view removeFromSuperview];
                 [vc removeFromParentViewController];
-                if (self.view.window) {
-                    [self endAppearanceTransitionForViewController:vc];
-                }
+                [self endAppearanceTransitionForViewController:vc];
             }
         }
         
@@ -333,17 +323,13 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
             if ([vc.view.superview isEqual:self.scrollView]) {
                 [vc.view removeFromSuperview];
                 [vc removeFromParentViewController];
-                if (self.view.window) {
-                    [self endAppearanceTransitionForViewController:vc];
-                }
+                [self endAppearanceTransitionForViewController:vc];
             }
         }
         
         //将要remove
         [currentVC willMoveToParentViewController:nil];
-        if (self.view.window) {
-            [self beginAppearanceTransition:NO animated:YES forViewController:currentVC];
-        }
+        [self beginAppearanceTransition:NO animated:YES forViewController:currentVC];
         
         //将要add
         [self addChildViewController:targetVC];
@@ -351,9 +337,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
             [targetVC.view removeFromSuperview];
             [self.scrollView addSubview:targetVC.view];
         }
-        if (self.view.window) {
-            [self beginAppearanceTransition:YES animated:YES forViewController:targetVC];
-        }
+        [self beginAppearanceTransition:YES animated:YES forViewController:targetVC];
     }
 }
 
@@ -390,16 +374,11 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
     [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
     _ignoreSetCurrentIndex = NO;
     
-    if (self.view.window) {
-        //有可能之前是willDisappear状态
-        if ([self lastAppearanceTransitionForViewController:currentVC]==_MLPageAppearanceTransitionNO) {
-            [self beginAppearanceTransition:YES animated:YES forViewController:currentVC];
-        }
+    //有可能之前是willDisappear状态
+    if ([self lastAppearanceTransitionForViewController:currentVC]==_MLPageAppearanceTransitionNO) {
+        [self beginAppearanceTransition:YES animated:YES forViewController:currentVC];
     }
-    
-    if (self.view.window) {
-        [self endAppearanceTransitionForViewController:currentVC];
-    }
+    [self endAppearanceTransitionForViewController:currentVC];
     
     [currentVC didMoveToParentViewController:self];
     
@@ -408,19 +387,12 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
             continue;
         }
         if ([vc.view.superview isEqual:self.scrollView]) {
-            
-            if (self.view.window) {
-                if ([self lastAppearanceTransitionForViewController:vc]==_MLPageAppearanceTransitionYES) {
-                    [self beginAppearanceTransition:NO animated:YES forViewController:vc];
-                }
+            if ([self lastAppearanceTransitionForViewController:vc]==_MLPageAppearanceTransitionYES) {
+                [self beginAppearanceTransition:NO animated:YES forViewController:vc];
             }
-            
             [vc.view removeFromSuperview];
             [vc removeFromParentViewController];
-            
-            if (self.view.window) {
-                [self endAppearanceTransitionForViewController:vc];
-            }
+            [self endAppearanceTransitionForViewController:vc];
         }
     }
     
