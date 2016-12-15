@@ -53,14 +53,17 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 @end
 @implementation _MLScrollMenuCollectionView
 
-- (void)reloadData
-{
+- (void)reloadData {
     [super reloadData];
     if (self.didReloadDataBlock) {
         dispatch_async(dispatch_get_main_queue(), ^{
            self.didReloadDataBlock(self);
         });
     }
+}
+
+- (void)forceSuperReloadData {
+    [super reloadData];
 }
 
 @end
@@ -252,56 +255,56 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 {
     _delegate = delegate;
 
-    [self reload];
+    [self setNeedsLayout];
 }
 
 - (void)setTitleColor:(UIColor *)titleColor
 {
     _titleColor = titleColor;
 
-    [self reload];
+    [self setNeedsLayout];
 }
 
 - (void)setCurrentTitleColor:(UIColor *)currentTitleColor
 {
     _currentTitleColor = currentTitleColor;
 
-    [self reload];
+    [self setNeedsLayout];
 }
 
 - (void)setTitleFont:(UIFont *)titleFont
 {
     _titleFont = titleFont;
 
-    [self reload];
+    [self setNeedsLayout];
 }
 
 - (void)setExtraSignFont:(UIFont *)extraSignFont
 {
     _extraSignFont = extraSignFont;
     
-    [self reload];
+    [self setNeedsLayout];
 }
 
 - (void)setCollectionViewCellXPadding:(CGFloat)collectionViewCellXPadding
 {
     _collectionViewCellXPadding = collectionViewCellXPadding;
 
-    [self reload];
+    [self setNeedsLayout];
 }
 
 - (void)setIndicatorViewHeight:(CGFloat)indicatorViewHeight
 {
     _indicatorViewHeight = indicatorViewHeight;
 
-    [self reload];
+    [self setNeedsLayout];
 }
 
 - (void)setCurrentIndicatorViewXPadding:(CGFloat)currentIndicatorViewXPadding
 {
     _currentIndicatorViewXPadding = currentIndicatorViewXPadding;
 
-    [self reload];
+    [self setNeedsLayout];
 }
 
 - (void)setCurrentIndicatorColor:(UIColor *)indicatorColor
@@ -470,8 +473,8 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 }
 
 #pragma mark - outcall
-- (void)reload {
-    [self setNeedsLayout];
+- (void)reloadExtraSignDisplay {
+    [self.collectionView forceSuperReloadData];
 }
 
 - (void)reloadData

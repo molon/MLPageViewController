@@ -65,8 +65,8 @@ FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
 - (void)displayFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex ratio:(double)ratio;
 
 /**
- reload
+ reload extra sign display
  */
-- (void)reload;
+- (void)reloadExtraSignDisplay;
 
 @end

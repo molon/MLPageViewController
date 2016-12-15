@@ -356,6 +356,11 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
         return;
     }
     
+    //设置当前index
+    _ignoreSetCurrentIndex = YES;
+    [self.scrollMenuView setCurrentIndex:currentIndex animated:self.view.window?YES:NO];
+    _ignoreSetCurrentIndex = NO;
+    
     UIViewController *currentVC = self.viewControllers[currentIndex];
     
     //如果没有前置行为，这里的当然也就无效了
@@ -368,11 +373,6 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
             return;
         }
     }
-    
-    //设置当前index
-    _ignoreSetCurrentIndex = YES;
-    [self.scrollMenuView setCurrentIndex:currentIndex animated:YES];
-    _ignoreSetCurrentIndex = NO;
     
     //有可能之前是willDisappear状态
     if ([self lastAppearanceTransitionForViewController:currentVC]==_MLPageAppearanceTransitionNO) {
