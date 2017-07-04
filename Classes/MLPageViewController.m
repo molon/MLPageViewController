@@ -17,6 +17,10 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
     _MLPageAppearanceTransitionDone,
 };
 
+@interface UIScrollView(_MLPageScrollView)
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer;
+@end
+
 @interface _MLPageScrollView : UIScrollView
 
 @end
@@ -41,6 +45,11 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
             }
         }
     }
+    
+    if ([UIScrollView instancesRespondToSelector:@selector(gestureRecognizer:shouldRequireFailureOfGestureRecognizer:)]) {
+        return [super gestureRecognizer:gestureRecognizer shouldRequireFailureOfGestureRecognizer:otherGestureRecognizer];
+    }
+    
     return NO;
 }
 
