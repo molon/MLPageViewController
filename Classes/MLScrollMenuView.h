@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class MLScrollMenuView;
+@class MLScrollMenuCollectionViewCell;
 @protocol MLScrollMenuViewDelegate <NSObject>
 
 - (NSString*)titleForIndex:(NSInteger)index;
@@ -19,12 +20,20 @@
 @optional
 - (BOOL)shouldChangeCurrentIndexFrom:(NSInteger)oldIndex to:(NSInteger)toIndex scrollMenuView:(MLScrollMenuView*)scrollMenuView;
 - (NSString*)extraSignForIndex:(NSInteger)index;
+- (void)afterLayoutWithCell:(MLScrollMenuCollectionViewCell*)cell index:(NSInteger)index;
 
 @end
 
 FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewCollectionViewCellXPadding;
 FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewHeight;
 FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
+
+@interface MLScrollMenuCollectionViewCell : UICollectionViewCell
+
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UILabel *extraSignLabel;
+
+@end
 
 @interface MLScrollMenuView : UIView
 
@@ -65,8 +74,8 @@ FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding;
 - (void)displayFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex ratio:(double)ratio;
 
 /**
- reload extra sign display
+ reload display
  */
-- (void)reloadExtraSignDisplay;
+- (void)reloadDisplay;
 
 @end

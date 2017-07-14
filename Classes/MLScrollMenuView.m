@@ -68,14 +68,13 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 
 @end
 
-@interface _MLScrollMenuCollectionViewCell : UICollectionViewCell
+@interface MLScrollMenuCollectionViewCell()
 
-@property (nonatomic, strong) UILabel *titleLabel;
-@property (nonatomic, strong) UILabel *extraSignLabel;
+@property (nonatomic, copy) void(^afterLayoutBlock)();
 
 @end
 
-@implementation _MLScrollMenuCollectionViewCell
+@implementation MLScrollMenuCollectionViewCell
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
@@ -130,6 +129,10 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     
     self.titleLabel.frame = CGRectMake((width-titleSize.width)/2, (height-titleSize.height)/2, titleSize.width, titleSize.height);
     self.extraSignLabel.frame = CGRectMake((self.titleLabel.frame.origin.x+self.titleLabel.frame.size.width)+1.0f, self.titleLabel.frame.origin.y-extraSignSize.height/2, extraSignSize.width, extraSignSize.height);
+    
+    if (_afterLayoutBlock) {
+        _afterLayoutBlock();
+    }
 }
 
 @end
@@ -216,7 +219,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
         _collectionView.showsHorizontalScrollIndicator = NO;
         _collectionView.showsVerticalScrollIndicator = NO;
         
-        [_collectionView registerClass:[_MLScrollMenuCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([_MLScrollMenuCollectionViewCell class])];
+        [_collectionView registerClass:[MLScrollMenuCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([MLScrollMenuCollectionViewCell class])];
     }
     return _collectionView;
 }
@@ -392,7 +395,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 {
     NSAssert(self.delegate, @"MLScrollMenuViewDelegate is required");
     
-    _MLScrollMenuCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([_MLScrollMenuCollectionViewCell class]) forIndexPath:indexPath];
+    MLScrollMenuCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([MLScrollMenuCollectionViewCell class]) forIndexPath:indexPath];
     
     NSString *title = [self.delegate titleForIndex:indexPath.row];
     
@@ -406,6 +409,14 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
         cell.extraSignLabel.textColor = cell.titleLabel.textColor;
         cell.extraSignLabel.text = extraSign;
     }
+    
+    __weak __typeof__(self)weakSelf = self;
+    [cell setAfterLayoutBlock:^{
+        __strong __typeof__(self)self = weakSelf;
+        if ([self.delegate respondsToSelector:@selector(afterLayoutWithCell:index:)]) {
+            [self.delegate afterLayoutWithCell:cell index:indexPath.row];
+        }
+    }];
     
     [cell setNeedsLayout];
     
@@ -465,7 +476,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 
 - (void)updateTitleColorWithCurrentIndex:(NSInteger)currentIndex
 {
-    for (_MLScrollMenuCollectionViewCell *cell in [self.collectionView visibleCells]) {
+    for (MLScrollMenuCollectionViewCell *cell in [self.collectionView visibleCells]) {
         NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
         cell.titleLabel.textColor = (indexPath.row==currentIndex)?self.currentTitleColor:self.titleColor;
         cell.extraSignLabel.textColor = cell.titleLabel.textColor;
@@ -473,7 +484,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 }
 
 #pragma mark - outcall
-- (void)reloadExtraSignDisplay {
+- (void)reloadDisplay {
     [self.collectionView forceSuperReloadData];
 }
 
