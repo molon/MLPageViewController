@@ -70,7 +70,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 
 @interface MLScrollMenuCollectionViewCell()
 
-@property (nonatomic, copy) void(^afterLayoutBlock)();
+@property (nonatomic, copy) void(^afterLayoutBlock)(MLScrollMenuCollectionViewCell *cell);
 
 @end
 
@@ -131,7 +131,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     self.extraSignLabel.frame = CGRectMake((self.titleLabel.frame.origin.x+self.titleLabel.frame.size.width)+1.0f, self.titleLabel.frame.origin.y-extraSignSize.height/2, extraSignSize.width, extraSignSize.height);
     
     if (_afterLayoutBlock) {
-        _afterLayoutBlock();
+        _afterLayoutBlock(self);
     }
 }
 
@@ -411,10 +411,10 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
     }
     
     __weak __typeof__(self)weakSelf = self;
-    [cell setAfterLayoutBlock:^{
+    [cell setAfterLayoutBlock:^(MLScrollMenuCollectionViewCell *c) {
         __strong __typeof__(self)self = weakSelf;
         if ([self.delegate respondsToSelector:@selector(afterLayoutWithCell:index:)]) {
-            [self.delegate afterLayoutWithCell:cell index:indexPath.row];
+            [self.delegate afterLayoutWithCell:c index:indexPath.row];
         }
     }];
     
