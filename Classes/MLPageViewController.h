@@ -86,4 +86,9 @@ FOUNDATION_EXPORT CGFloat const DefaultMLScrollMenuViewHeightForMLPageViewContro
  */
 - (void)changeScrollViewFrameTo:(CGRect)frame;
 
+/*!
+ 可以自定义中间过渡效果，需要super
+ */
+- (void)displayFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex ratio:(double)ratio __attribute__((objc_requires_super));
+
 @end

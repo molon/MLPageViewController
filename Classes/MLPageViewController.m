@@ -72,6 +72,8 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
     NSMutableDictionary *_viewControllerAppearanceTransitionMap;
     
     CGFloat _scrollMenuViewHeight;
+    
+    BOOL _contentSizeSet;
 }
 
 - (instancetype)initWithViewControllers:(NSArray *)viewControllers
@@ -200,7 +202,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
         if (self.navigationController&&!self.navigationController.navigationBar.translucent) {
             navigationBarBottomOriginY = 0.0f;
         }else{
-            navigationBarBottomOriginY += [UIApplication sharedApplication].statusBarHidden?0.0f:20.0f;
+            navigationBarBottomOriginY += self.prefersStatusBarHidden?0.0f:20.0f;
             if (self.navigationController) {
                 if (!self.navigationController.navigationBarHidden) {
                     navigationBarBottomOriginY += self.navigationController.navigationBar.intrinsicContentSize.height;
@@ -305,7 +307,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
     CGFloat leftToRightRatio = (scrollView.contentOffset.x - leftIndex * scrollView.frame.size.width) / scrollView.frame.size.width;
     
     if (!_dontChangeDisplayMenuView) {
-        [self.scrollMenuView displayFromIndex:leftIndex toIndex:rightIndex ratio:fabs(leftToRightRatio)];
+        [self displayFromIndex:leftIndex toIndex:rightIndex ratio:fabs(leftToRightRatio)];
     }
     
     //如果为0说明实际上已经处于绝对的某页面了，这时候就不应该去处理vc will appear or disappear 状态了。而应该交给scrollViewDidEndDecelerating去处理did appear和dod disappear
@@ -471,6 +473,10 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
     }
 }
 
+- (void)displayFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex ratio:(double)ratio {
+    [self.scrollMenuView displayFromIndex:fromIndex toIndex:toIndex ratio:ratio];
+}
+
 #pragma mark - outcall
 - (void)setCurrentIndex:(NSInteger)currentIndex animated:(BOOL)animated
 {
@@ -490,11 +496,12 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
     
     self.scrollView.frame = frame;
     
-    if (!CGSizeEqualToSize(frame.size, oldFrame.size)) {
+    if (!CGSizeEqualToSize(frame.size, oldFrame.size)||!_contentSizeSet) {
         CGFloat width = frame.size.width;
         
         //设置其contentSize
         self.scrollView.contentSize = CGSizeMake(width*self.viewControllers.count, self.scrollView.frame.size.height);
+        _contentSizeSet = YES;
         
         //这里contentOffset可能会被重置到其他位置，所以需要修正一下到当前currentIndex
         [self.scrollView setContentOffset:CGPointMake(self.scrollMenuView.currentIndex*self.scrollView.frame.size.width,0)];
