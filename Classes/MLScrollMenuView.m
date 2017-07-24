@@ -330,7 +330,11 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 
 - (void)setCurrentIndex:(NSInteger)currentIndex
 {
-    NSAssert(currentIndex>=0&&currentIndex<[self.delegate titleCount], @"currentIndex设置越界");
+    if (![self isIndexValid:currentIndex]) {
+        NSAssert(NO, @"currentIndex设置越界");
+        _currentIndex = currentIndex;
+        return;
+    }
     
     if (_currentIndex != currentIndex&&self.delegate&&[self.delegate respondsToSelector:@selector(shouldChangeCurrentIndexFrom:to:scrollMenuView:)]) {
         if (![self.delegate shouldChangeCurrentIndexFrom:_currentIndex to:currentIndex scrollMenuView:self]) {
@@ -441,8 +445,16 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 }
 
 #pragma mark - helper
+- (BOOL)isIndexValid:(NSInteger)index {
+    return index>=0&&index<[self.delegate titleCount];
+}
+
 - (CGRect)indicatorFrameWithIndex:(NSInteger)index
 {
+    if (![self isIndexValid:index]) {
+        return CGRectZero;
+    }
+    
     //找到对应cell的位置
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
     
@@ -460,6 +472,10 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 
 - (CGPoint)contentOffsetWidthIndex:(NSInteger)index
 {
+    if (![self isIndexValid:index]) {
+        return CGPointZero;
+    }
+    
     //移动contentOffset
     CGPoint contentOffset = self.collectionView.contentOffset;
     
@@ -476,6 +492,10 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 
 - (void)updateTitleColorWithCurrentIndex:(NSInteger)currentIndex
 {
+    if (![self isIndexValid:currentIndex]) {
+        return;
+    }
+    
     for (MLScrollMenuCollectionViewCell *cell in [self.collectionView visibleCells]) {
         NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
         cell.titleLabel.textColor = (indexPath.row==currentIndex)?self.currentTitleColor:self.titleColor;
@@ -515,10 +535,7 @@ CGFloat const DefaultMLScrollMenuViewIndicatorViewXPadding = 5.0f;
 
 - (void)displayFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex ratio:(double)ratio
 {
-    if (fromIndex<0||fromIndex>[self.delegate titleCount]-1) {
-        return;
-    }
-    if (toIndex<0||toIndex>[self.delegate titleCount]-1) {
+    if (![self isIndexValid:fromIndex]||![self isIndexValid:toIndex]) {
         return;
     }
 
