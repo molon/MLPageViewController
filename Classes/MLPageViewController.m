@@ -149,7 +149,7 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
         _scrollView.pagingEnabled = YES;
         _scrollView.showsHorizontalScrollIndicator = NO;
         _scrollView.directionalLockEnabled = YES;
-        //TODO: iOS7下 下拉不是太好用，以后需要优化下，现在先禁掉
+        //TODO: iOS7下 会影响到下拉刷新不是太好用，以后需要优化下，现在先禁掉
         if ([UIDevice currentDevice].systemVersion.doubleValue<8.0f) {
             _scrollView.scrollEnabled = NO;
         }
@@ -199,19 +199,8 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
     CGFloat tabBarOccupyHeight = 0.0f;
     
     if (self.autoAdjustTopAndBottomBlank) {
-        if (self.navigationController&&!self.navigationController.navigationBar.translucent) {
-            navigationBarBottomOriginY = 0.0f;
-        }else{
-            navigationBarBottomOriginY += self.prefersStatusBarHidden?0.0f:20.0f;
-            if (self.navigationController) {
-                if (!self.navigationController.navigationBarHidden) {
-                    navigationBarBottomOriginY += self.navigationController.navigationBar.intrinsicContentSize.height;
-                }
-            }
-        }
-        if (self.tabBarController&&self.tabBarController.tabBar.translucent&&!self.hidesBottomBarWhenPushed) {
-            tabBarOccupyHeight += self.tabBarController.tabBar.intrinsicContentSize.height;
-        }
+        navigationBarBottomOriginY = [self navigationBarBottom];
+        tabBarOccupyHeight = [self tabBarOccupyHeight];
     }
     
     CGFloat baseY = navigationBarBottomOriginY;
@@ -220,6 +209,28 @@ typedef NS_ENUM(NSUInteger, _MLPageAppearanceTransition) {
     baseY+=self.scrollMenuView.frame.size.height;
     
     [self changeScrollViewFrameTo:CGRectMake(0, baseY, width, self.view.frame.size.height-tabBarOccupyHeight-baseY)];
+}
+
+- (CGFloat)navigationBarBottom {
+    CGFloat navigationBarBottomOriginY = 0.0f;
+    if (self.navigationController&&!self.navigationController.navigationBar.translucent) {
+        navigationBarBottomOriginY = 0.0f;
+    }else{
+        navigationBarBottomOriginY += self.prefersStatusBarHidden?0.0f:20.0f;
+        if (self.navigationController) {
+            if (!self.navigationController.navigationBarHidden) {
+                navigationBarBottomOriginY += self.navigationController.navigationBar.intrinsicContentSize.height;
+            }
+        }
+    }
+    return navigationBarBottomOriginY;
+}
+
+- (CGFloat)tabBarOccupyHeight {
+    if (self.tabBarController&&self.tabBarController.tabBar.translucent&&!self.hidesBottomBarWhenPushed) {
+        return self.tabBarController.tabBar.intrinsicContentSize.height;
+    }
+    return 0.0f;
 }
 
 #pragma mark - scrollMenuView delegate
